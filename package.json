@@ -1,0 +1,22 @@
+{
+  "name": "expense-tracker-backend",
+  "version": "1.0.0",
+  "description": "backend for expense tracker app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cfragout/expense-tracker-backend.git"
+  },
+  "author": "cfr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cfragout/expense-tracker-backend/issues"
+  },
+  "homepage": "https://github.com/cfragout/expense-tracker-backend#readme",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
+}
