@@ -16,7 +16,11 @@ const expenses = [
         user: 'juan',
         currency: '2',
         description: '',
-        category: '1',
+        category: {
+            name: 'Supermercado',
+            icon: '',
+            id: '123-321-123'
+        },
         date: '2022-09-19T20:34:39.163Z'
     },
     {
@@ -25,7 +29,11 @@ const expenses = [
         user: 'testy',
         currency: '2',
         description: 'Gaseosa',
-        category: '1',
+        category: {
+            name: 'Supermercado',
+            icon: '',
+            id: '123-321-123'
+        },
         date: '2021-09-12T20:34:39.163Z'
     },
     {
@@ -34,7 +42,11 @@ const expenses = [
         user: 'testy',
         currency: '2',
         description: 'Auto mac',
-        category: '1',
+        category: {
+            name: 'Supermercado',
+            icon: '',
+            id: '123-321-123'
+        },
         date: '2022-09-18T20:34:39.163Z'
     },
     {
@@ -43,7 +55,11 @@ const expenses = [
         user: 'testy',
         currency: '2',
         description: '',
-        category: '1',
+        category: {
+            name: 'Supermercado',
+            icon: '',
+            id: '123-321-123'
+        },
         date: '2022-09-15T20:34:39.163Z'
     },
     {
@@ -52,7 +68,11 @@ const expenses = [
         user: 'testy',
         currency: '2',
         description: '',
-        category: '1',
+        category: {
+            name: 'Supermercado',
+            icon: '',
+            id: '123-321-123'
+        },
         date: '2022-09-13T20:34:39.163Z'
     },
     {
@@ -61,7 +81,11 @@ const expenses = [
         user: 'testy',
         currency: '2',
         description: '',
-        category: '1',
+        category: {
+            name: 'Supermercado',
+            icon: '',
+            id: '123-321-123'
+        },
         date: '2022-09-11T20:34:39.163Z'
     },
     {
@@ -70,7 +94,11 @@ const expenses = [
         user: 'testy',
         currency: '2',
         description: '',
-        category: '3',
+        category: {
+            name: 'Transporte',
+            id: '9',
+            icon: ''
+        },
         date: '2022-09-19T21:34:39.163Z'
     },
     {
@@ -79,7 +107,11 @@ const expenses = [
         user: 'testy',
         currency: '2',
         description: '',
-        category: '1',
+        category: {
+            name: 'Supermercado',
+            icon: '',
+            id: '123-321-123'
+        },
         date: '2021-05-19T20:34:39.163Z'
     },
     {
@@ -88,7 +120,11 @@ const expenses = [
         user: 'testy',
         currency: '1',
         description: '',
-        category: '1',
+        category: {
+            name: 'Supermercado',
+            icon: '',
+            id: '123-321-123'
+        },
         date: '2022-09-10T20:34:39.163Z'
     },
     {
@@ -97,7 +133,11 @@ const expenses = [
         user: 'juan',
         currency: '2',
         description: '',
-        category: '1',
+        category: {
+            name: 'Supermercado',
+            icon: '',
+            id: '123-321-123'
+        },
         date: '2022-09-02T20:34:39.163Z'
     },
     {
@@ -106,7 +146,11 @@ const expenses = [
         user: 'juan',
         currency: '2',
         description: '',
-        category: '1',
+        category: {
+            name: 'Supermercado',
+            icon: '',
+            id: '123-321-123'
+        },
         date: '2022-09-02T20:34:39.163Z'
     },
     {
@@ -115,7 +159,11 @@ const expenses = [
         user: 'juan',
         currency: '2',
         description: '',
-        category: '1',
+        category: {
+            name: 'Supermercado',
+            icon: '123-321-123',
+            id: '123-321-123'
+        },
         date: '2022-09-02T20:34:39.163Z'
     },
     {
@@ -124,7 +172,11 @@ const expenses = [
         user: 'testy',
         currency: '2',
         description: '',
-        category: '3',
+        category: {
+            name: 'Transporte',
+            id: '9',
+            icon: ''
+        },
         date: '2022-09-02T20:34:39.163Z'
     },
     {
@@ -133,8 +185,38 @@ const expenses = [
         user: 'juan',
         currency: '2',
         description: '',
-        category: '4',
+        category: {
+            name: 'Supermercado',
+            id: '8',
+            icon: ''
+        },
         date: '2022-09-02T20:34:39.163Z'
+    },
+    {
+        id: '88',
+        amount: 3000,
+        user: 'juan',
+        currency: '2',
+        description: '',
+        category: {
+            name: 'Alquiler',
+            id: '8',
+            icon: ''
+        },
+        date: '2022-08-01T20:34:39.163Z'
+    },
+    {
+        id: '99',
+        amount: 3000,
+        user: 'juan',
+        currency: '2',
+        description: '',
+        category: {
+            name: 'Alquiler',
+            id: '8',
+            icon: ''
+        },
+        date: '2022-09-01T20:34:39.163Z'
     },
     {
         id: '14',
@@ -142,7 +224,11 @@ const expenses = [
         user: 'juan',
         currency: '2',
         description: '',
-        category: 'prueba',
+        category: {
+            name: 'Internet',
+            icon: '',
+            id: '645-321-123'
+        },
         date: '2022-09-02T20:34:39.163Z'
     },
 ]
@@ -154,20 +240,25 @@ const categories = [
         icon: 'USD'
     },
     {
-        id: '1',
+        id: '123-321-123',
         name: 'Supermercado',
         icon: 'GBP'
     },
     {
-        id: '2',
+        id: '8',
         name: 'Alquiler',
         icon: 'ARS'
     },
     {
-        id: '3',
+        id: '645-321-123',
         name: 'Internet',
         icon: 'ARS'
-    }
+    },
+    {
+        id: '9',
+        name: 'Transporte',
+        icon: 'ARS'
+    },
 ]
 
 app.get('/', (req, res) => {
@@ -188,10 +279,10 @@ app.get('/api/expenses/byCategory', (req, res) => {
 
     const expensesByCategory = {};
     expensesInMonth.forEach(exp => {
-        if (expensesByCategory[exp.category]) {
-            expensesByCategory[exp.category] += exp.amount;
+        if (expensesByCategory[exp.category.name]) {
+            expensesByCategory[exp.category.name] += exp.amount;
         } else {
-            expensesByCategory[exp.category] = exp.amount;
+            expensesByCategory[exp.category.name] = exp.amount;
         }
     })
 
@@ -304,6 +395,7 @@ app.post('/api/expenses', (req, res) => {
         id: crypto.randomUUID(),
         amount: parseInt(req.body.amount, 10),
         currency,
+        category: categories.find(c => c.id === req.body.category)
     }
 
     expenses.push(newExpense);
