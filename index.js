@@ -147,10 +147,35 @@ const expenses = [
     },
 ]
 
+const categories = [
+    {
+        id: '0',
+        name: 'Viajes',
+        icon: 'USD'
+    },
+    {
+        id: '1',
+        name: 'Supermercado',
+        icon: 'GBP'
+    },
+    {
+        id: '2',
+        name: 'Alquiler',
+        icon: 'ARS'
+    },
+    {
+        id: '3',
+        name: 'Internet',
+        icon: 'ARS'
+    }
+]
+
 app.get('/', (req, res) => {
     res.json(crypto.randomUUID())
 })
 
+
+// Expenses
 app.get('/api/expenses/byCategory', (req, res) => {
     // needs validations
     const date = moment(req.query.date);
@@ -285,5 +310,22 @@ app.post('/api/expenses', (req, res) => {
     res.json(newExpense);
 })
 
+// Categories
+app.get('/api/categories', (req, res) => {
+    res.json({
+        response: categories
+    })
+})
+
+
+app.post('/api/categories', (req, res) => {
+    const newCategory = {
+        ...req.body,
+        id: crypto.randomUUID()
+    }
+
+    categories.push(newCategory);
+    res.json(newCategory)
+})
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
