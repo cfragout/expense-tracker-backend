@@ -19,7 +19,7 @@ const expenses = [
         category: {
             name: 'Supermercado',
             icon: '',
-            id: '123-321-123'
+            id: '2'
         },
         date: '2022-09-19T20:34:39.163Z'
     },
@@ -32,7 +32,7 @@ const expenses = [
         category: {
             name: 'Supermercado',
             icon: '',
-            id: '123-321-123'
+            id: '2'
         },
         date: '2021-09-12T20:34:39.163Z'
     },
@@ -45,7 +45,7 @@ const expenses = [
         category: {
             name: 'Supermercado',
             icon: '',
-            id: '123-321-123'
+            id: '2'
         },
         date: '2022-09-18T20:34:39.163Z'
     },
@@ -58,7 +58,7 @@ const expenses = [
         category: {
             name: 'Supermercado',
             icon: '',
-            id: '123-321-123'
+            id: '2'
         },
         date: '2022-09-15T20:34:39.163Z'
     },
@@ -71,7 +71,7 @@ const expenses = [
         category: {
             name: 'Supermercado',
             icon: '',
-            id: '123-321-123'
+            id: '2'
         },
         date: '2022-09-13T20:34:39.163Z'
     },
@@ -84,7 +84,7 @@ const expenses = [
         category: {
             name: 'Supermercado',
             icon: '',
-            id: '123-321-123'
+            id: '2'
         },
         date: '2022-09-11T20:34:39.163Z'
     },
@@ -110,7 +110,7 @@ const expenses = [
         category: {
             name: 'Supermercado',
             icon: '',
-            id: '123-321-123'
+            id: '2'
         },
         date: '2021-05-19T20:34:39.163Z'
     },
@@ -123,7 +123,7 @@ const expenses = [
         category: {
             name: 'Supermercado',
             icon: '',
-            id: '123-321-123'
+            id: '2'
         },
         date: '2022-09-10T20:34:39.163Z'
     },
@@ -136,7 +136,7 @@ const expenses = [
         category: {
             name: 'Supermercado',
             icon: '',
-            id: '123-321-123'
+            id: '2'
         },
         date: '2022-09-02T20:34:39.163Z'
     },
@@ -149,7 +149,7 @@ const expenses = [
         category: {
             name: 'Supermercado',
             icon: '',
-            id: '123-321-123'
+            id: '2'
         },
         date: '2022-09-02T20:34:39.163Z'
     },
@@ -161,8 +161,8 @@ const expenses = [
         description: '',
         category: {
             name: 'Supermercado',
-            icon: '123-321-123',
-            id: '123-321-123'
+            icon: '2',
+            id: '2'
         },
         date: '2022-09-02T20:34:39.163Z'
     },
@@ -187,7 +187,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Supermercado',
-            id: '123-321-123',
+            id: '2',
             icon: ''
         },
         date: '2022-07-026T20:34:39.163Z'
@@ -213,7 +213,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Supermercado',
-            id: '123-321-123',
+            id: '2',
             icon: ''
         },
         date: '2022-07-05T20:34:39.163Z'
@@ -226,7 +226,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Supermercado',
-            id: '123-321-123',
+            id: '2',
             icon: ''
         },
         date: '2022-07-017T20:34:39.163Z'
@@ -283,6 +283,32 @@ const expenses = [
         },
         date: '2022-09-02T20:34:39.163Z'
     },
+    {
+        id: '15',
+        amount: 22.12,
+        user: 'juan',
+        currency: '2',
+        description: '',
+        category: {
+            name: 'Supermercado',
+            icon: '',
+            id: '2'
+        },
+        date: '2022-09-22T20:34:39.163Z'
+    },
+    {
+        id: '16',
+        amount: 69.05,
+        user: 'juan',
+        currency: '2',
+        description: '',
+        category: {
+            name: 'Supermercado',
+            icon: '',
+            id: '2'
+        },
+        date: '2022-09-29T20:34:39.163Z'
+    },
 ]
 
 const categories = [
@@ -292,7 +318,7 @@ const categories = [
         icon: 'USD'
     },
     {
-        id: '123-321-123',
+        id: '2',
         name: 'Supermercado',
         icon: 'GBP'
     },
@@ -319,6 +345,47 @@ app.get('/', (req, res) => {
 
 
 // Expenses
+app.get('/api/expenses/monthly', (req, res) => {
+
+    // needs validations
+    const date = moment(req.query.date);
+    const lastDate = date.daysInMonth();
+    const monthlyExpenses = [];
+    let filteredExpenses = [...expenses];
+    if (req.query.include !== undefined) {
+        const categoryIds = req.query.categories.split(',')
+        const include =  req.query.include;
+        filteredExpenses = expenses.filter(e => {
+            if (include === 'true') {
+                // only get the expenses from included categories
+                return categoryIds.indexOf(e.category.id) > -1;
+            } else {
+                // only filter out the expenses from excluded categories
+                return categoryIds.indexOf(e.category.id) === -1;
+            }
+        });
+    }
+
+    // may be able to do this better once mongodb is in place
+    for (let index = 1; index <= lastDate; index++) {
+
+        // all the expenses made in the date === index
+        const expensesForToday = filteredExpenses.filter(e => {
+            let expenseDate = moment(e.date);
+            return expenseDate.isSame(date, 'month') && expenseDate.date() === index;
+        });
+
+        // need to check currency here
+        const totalExpenses = expensesForToday.length > 0 ? expensesForToday.map(e => e.amount).reduce((prev, current) => prev + current) : 0;
+
+
+        monthlyExpenses.push(totalExpenses);
+    }
+
+    res.json({ response: monthlyExpenses });
+})
+
+
 app.get('/api/expenses/byCategory', (req, res) => {
     // needs validations
     const date = moment(req.query.date);
@@ -369,34 +436,6 @@ app.get('/api/expenses/:id', (req, res) => {
     } else {
         res.status(404).end();
     }
-})
-
-
-// :date should be query string
-app.get('/api/expenses/monthly/:date', (req, res) => {
-
-    // needs validations
-    const date = moment(req.params.date);
-    const lastDate = date.daysInMonth();
-    const monthlyExpenses = [];
-
-    // may be able to do this better once mongodb is in place
-    for (let index = 1; index <= lastDate; index++) {
-
-        // all the expenses made in the date === index
-        const expensesForToday = expenses.filter(e => {
-            const expenseDate = moment(e.date);
-            return expenseDate.isSame(date, 'month') && expenseDate.date() === index;
-        });
-
-        // need to check currency here
-        const totalExpenses = expensesForToday.length > 0 ? expensesForToday.map(e => e.amount).reduce((prev, current) => prev + current) : 0;
-
-
-        monthlyExpenses.push(totalExpenses);
-    }
-
-    res.json({ response: monthlyExpenses });
 })
 
 
