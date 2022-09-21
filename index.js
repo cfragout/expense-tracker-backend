@@ -181,16 +181,68 @@ const expenses = [
     },
     {
         id: '13',
-        amount: 12,
+        amount: 27.76,
         user: 'juan',
         currency: '2',
         description: '',
         category: {
             name: 'Supermercado',
+            id: '123-321-123',
+            icon: ''
+        },
+        date: '2022-07-026T20:34:39.163Z'
+    },
+    {
+        id: '55',
+        amount: 12,
+        user: 'juan',
+        currency: '2',
+        description: '',
+        category: {
+            name: 'Internet',
+            id: '645-321-123',
+            icon: ''
+        },
+        date: '2022-07-05T20:34:39.163Z'
+    },
+    {
+        id: '55',
+        amount: 245,
+        user: 'juan',
+        currency: '2',
+        description: '',
+        category: {
+            name: 'Supermercado',
+            id: '123-321-123',
+            icon: ''
+        },
+        date: '2022-07-05T20:34:39.163Z'
+    },
+    {
+        id: '66',
+        amount: 101.23,
+        user: 'juan',
+        currency: '2',
+        description: '',
+        category: {
+            name: 'Supermercado',
+            id: '123-321-123',
+            icon: ''
+        },
+        date: '2022-07-017T20:34:39.163Z'
+    },
+    {
+        id: '77',
+        amount: 3000,
+        user: 'juan',
+        currency: '2',
+        description: '',
+        category: {
+            name: 'Alquiler',
             id: '8',
             icon: ''
         },
-        date: '2022-09-02T20:34:39.163Z'
+        date: '2022-07-01T20:34:39.163Z'
     },
     {
         id: '88',
@@ -289,26 +341,25 @@ app.get('/api/expenses/byCategory', (req, res) => {
     res.json({ response: expensesByCategory })
 })
 
+
 app.get('/api/expenses', (req, res) => {
-    const from = moment(req.query.from);
-    const to = moment(req.query.to);
+    let expensesInRange = expenses;
 
-    const expensesInRange = expenses.filter(e => {
-        const expenseDate = moment(e.date);
-        return expenseDate.isBetween(from, to, 'hour');
-    });
+    if (req.query.from && req.query.to) {
+        const from = moment(req.query.from).set('hours', 00).set('minutes', 00);
+        const to = moment(req.query.to).set('hours', 23).set('minutes', 59);
 
+        expensesInRange = expenses.filter(e => {
+            const expenseDate = moment(e.date);
+            return expenseDate.isBetween(from, to, 'hours');
+        });
+    }
 
     res.json({
         response: expensesInRange
     })
 })
 
-app.get('/api/expenses', (req, res) => {
-    res.json({
-        response: expenses
-    })
-})
 
 app.get('/api/expenses/:id', (req, res) => {
     const expense = expenses.find(e => e.id === req.params.id);
@@ -318,33 +369,6 @@ app.get('/api/expenses/:id', (req, res) => {
     } else {
         res.status(404).end();
     }
-})
-
-
-app.get('/api/expenses/monthly/:date', (req, res) => {
-
-    // needs validations
-    const date = moment(req.params.date);
-    const lastDate = date.daysInMonth();
-    const monthlyExpenses = [];
-
-    // may be able to do this better once mongodb is in place
-    for (let index = 1; index <= lastDate; index++) {
-
-        // all the expenses made in the date === index
-        const expensesForToday = expenses.filter(e => {
-            const expenseDate = moment(e.date);
-            return expenseDate.isSame(date, 'month') && expenseDate.date() === index;
-        });
-
-        // need to check currency here
-        const totalExpenses = expensesForToday.length > 0 ? expensesForToday.map(e => e.amount, 10).reduce((prev, current) => prev + current) : 0;
-
-
-        monthlyExpenses.push(totalExpenses);
-    }
-
-    res.json({ response: monthlyExpenses });
 })
 
 
