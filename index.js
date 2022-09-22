@@ -378,9 +378,13 @@ app.get('/api/expenses/monthly', (req, res) => {
 app.get('/api/expenses/byCategory', (req, res) => {
     // needs validations
     const date = moment(req.query.date);
-    const limit = req.query.limit || 5;
 
-    const expensesInMonth = expenses.filter(e => {
+    let filteredExpenses = [...expenses];
+    if (req.query.include !== undefined) {
+        filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
+    }
+
+    const expensesInMonth = filteredExpenses.filter(e => {
         const expenseDate = moment(e.date);
         return expenseDate.isSame(date, 'month');
     });
