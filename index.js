@@ -309,6 +309,32 @@ const expenses = [
         },
         date: '2022-09-29T20:34:39.163Z'
     },
+    {
+        id: '17',
+        amount: 71.03,
+        user: 'juan',
+        currency: '2',
+        description: '',
+        category: {
+            name: 'Supermercado',
+            icon: '',
+            id: '2'
+        },
+        date: '2020-05-20T20:34:39.163Z'
+    },
+    {
+        id: '18',
+        amount: 30,
+        user: 'juan',
+        currency: '2',
+        description: '',
+        category: {
+            name: 'Internet',
+            icon: '',
+            id: '645-321-123'
+        },
+        date: '2020-05-03T20:34:39.163Z'
+    },
 ]
 
 const categories = [
@@ -344,6 +370,32 @@ app.get('/', (req, res) => {
 })
 
 
+app.get('/api/expenses/yearly', (req, res) => {
+    // needs validations
+    const date = moment(req.query.date);
+    let filteredExpenses = [...expenses];
+    if (req.query.include !== undefined) {
+        filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
+    }
+
+    const expensesInSameYear = filteredExpenses.filter(e => moment(e.date).isSame(date, 'year'));
+    const yearlyExpenses = [];
+
+    for (let index = 0; index < 12; index++) {
+        const currentMonth = moment(date).set('month', index);
+        const monthlyExpenses = expensesInSameYear.filter(e => moment(e.date).isSame(currentMonth, 'month'));
+
+        yearlyExpenses.push({
+            name: moment().set('month', index).format('MMMM'),
+            monthIndex: index,
+            expenses: monthlyExpenses.length > 0 ? monthlyExpenses.map(e => e.amount).reduce((prev, cur) => prev + cur) : 0
+        });
+    }
+
+    res.json({ response: yearlyExpenses });
+})
+
+
 // Expenses
 app.get('/api/expenses/monthly', (req, res) => {
     // needs validations
@@ -366,7 +418,6 @@ app.get('/api/expenses/monthly', (req, res) => {
 
         // need to check currency here
         const totalExpenses = expensesForToday.length > 0 ? expensesForToday.map(e => e.amount).reduce((prev, current) => prev + current) : 0;
-
 
         monthlyExpenses.push(totalExpenses);
     }
