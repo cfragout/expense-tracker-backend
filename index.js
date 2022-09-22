@@ -346,24 +346,13 @@ app.get('/', (req, res) => {
 
 // Expenses
 app.get('/api/expenses/monthly', (req, res) => {
-
     // needs validations
     const date = moment(req.query.date);
     const lastDate = date.daysInMonth();
     const monthlyExpenses = [];
     let filteredExpenses = [...expenses];
     if (req.query.include !== undefined) {
-        const categoryIds = req.query.categories.split(',')
-        const include =  req.query.include;
-        filteredExpenses = expenses.filter(e => {
-            if (include === 'true') {
-                // only get the expenses from included categories
-                return categoryIds.indexOf(e.category.id) > -1;
-            } else {
-                // only filter out the expenses from excluded categories
-                return categoryIds.indexOf(e.category.id) === -1;
-            }
-        });
+        filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
     }
 
     // may be able to do this better once mongodb is in place
@@ -410,13 +399,16 @@ app.get('/api/expenses/byCategory', (req, res) => {
 
 
 app.get('/api/expenses', (req, res) => {
-    let expensesInRange = expenses;
+    let expensesInRange = [...expenses];
+    if (req.query.include !== undefined) {
+        expensesInRange = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(''));
+    }
 
     if (req.query.from && req.query.to) {
         const from = moment(req.query.from).set('hours', 00).set('minutes', 00);
         const to = moment(req.query.to).set('hours', 23).set('minutes', 59);
 
-        expensesInRange = expenses.filter(e => {
+        expensesInRange = expensesInRange.filter(e => {
             const expenseDate = moment(e.date);
             return expenseDate.isBetween(from, to, 'hours');
         });
@@ -484,3 +476,19 @@ app.post('/api/categories', (req, res) => {
 })
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
+
+
+function applyCategoryFilter(expenses, include, categoryIds) {
+    let filteredExpenses = [...expenses];
+    filteredExpenses = expenses.filter(e => {
+        if (include === 'true') {
+            // only get the expenses from included categories
+            return categoryIds.indexOf(e.category.id) > -1;
+        } else {
+            // only filter out the expenses from excluded categories
+            return categoryIds.indexOf(e.category.id) === -1;
+        }
+    });
+
+    return filteredExpenses;
+}
