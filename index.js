@@ -452,7 +452,7 @@ app.post('/api/expenses', (req, res) => {
     const newExpense = {
         ...req.body,
         id: crypto.randomUUID(),
-        amount: parseInt(req.body.amount, 10),
+        amount: +req.body.amount,
         currency,
         category: categories.find(c => c.id === req.body.category) || { name: 'Sin categoria', id: '-1' }
     }
