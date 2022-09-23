@@ -190,7 +190,7 @@ const expenses = [
             id: '2',
             icon: ''
         },
-        date: '2022-07-026T20:34:39.163Z'
+        date: '2022-07-26T20:34:39.163Z'
     },
     {
         id: '55',
@@ -229,7 +229,7 @@ const expenses = [
             id: '2',
             icon: ''
         },
-        date: '2022-07-017T20:34:39.163Z'
+        date: '2022-07-17T20:34:39.163Z'
     },
     {
         id: '77',
@@ -426,10 +426,36 @@ app.get('/api/expenses/monthly', (req, res) => {
 })
 
 
+app.get('/api/expenses/byCategory/yearly', (req, res) => {
+    let filteredExpenses = [...expenses];
+    if (req.query.include !== undefined) {
+        filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
+    }
+
+    const categoriesYearly = []
+    const date = moment(req.query.date);
+    for (let index = 0; index < 12; index++) {
+        date.set('month', index);
+
+        const expensesInMonth = filteredExpenses.filter(e => moment(e.date).isSame(date, 'month'));
+        const expensesByCategory = {};
+        expensesInMonth.forEach(e => {
+            if (expensesByCategory[e.category.name]) {
+                expensesByCategory[e.category.name] += e.amount;
+            } else {
+                expensesByCategory[e.category.name] = e.amount
+            }
+        })
+
+        categoriesYearly.push(expensesByCategory);
+    }
+
+    res.json({ response: categoriesYearly })
+})
+
+
 app.get('/api/expenses/byCategory', (req, res) => {
     // needs validations
-    const date = moment(req.query.date);
-
     let filteredExpenses = [...expenses];
     if (req.query.include !== undefined) {
         filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
