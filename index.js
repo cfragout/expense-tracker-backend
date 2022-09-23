@@ -435,13 +435,18 @@ app.get('/api/expenses/byCategory', (req, res) => {
         filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
     }
 
-    const expensesInMonth = filteredExpenses.filter(e => {
-        const expenseDate = moment(e.date);
-        return expenseDate.isSame(date, 'month');
-    });
+    if (req.query.from && req.query.to) {
+        const from = moment(req.query.from).set('hours', 00).set('minutes', 00);
+        const to = moment(req.query.to).set('hours', 23).set('minutes', 59);
+
+        expensesInRange = filteredExpenses.filter(e => {
+            const expenseDate = moment(e.date);
+            return expenseDate.isBetween(from, to, 'hours');
+        });
+    }
 
     const expensesByCategory = {};
-    expensesInMonth.forEach(exp => {
+    expensesInRange.forEach(exp => {
         if (expensesByCategory[exp.category.name]) {
             expensesByCategory[exp.category.name] += exp.amount;
         } else {
