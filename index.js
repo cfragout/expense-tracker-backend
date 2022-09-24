@@ -426,6 +426,66 @@ app.get('/api/expenses/monthly', (req, res) => {
 })
 
 
+app.get('/api/expenses/byCategory/summary', (req, res) => {
+    let filteredExpenses = [...expenses];
+    if (req.query.include !== undefined) {
+        filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
+    }
+
+    let expensesInRange = [...filteredExpenses];
+    if (req.query.from && req.query.to) {
+        const from = moment(req.query.from).set('hours', 00).set('minutes', 00);
+        const to = moment(req.query.to).set('hours', 23).set('minutes', 59);
+
+        expensesInRange = expensesInRange.filter(e => {
+            const expenseDate = moment(e.date);
+            return expenseDate.isBetween(from, to, 'hours');
+        });
+    }
+
+    // sort expenses by ammount
+    expensesInRange.sort((a, b) => (a.amount > b.amount) ? -1 : ((b.amount > a.amount) ? 1 : 0));
+
+    // accumulate totals by category
+    const expensesSummary = accumulateExpensesByCategory(expensesInRange);
+
+    const expensesByCategory = {};
+    expensesInRange.forEach(e => {
+        if (expensesByCategory[e.category.name]) {
+            expensesByCategory[e.category.name].push(e);
+        } else {
+            expensesByCategory[e.category.name] = [e];
+        }
+    });
+
+    // sort by date
+    const sortedExpensesByCategory = {};
+    Object.keys(expensesByCategory).forEach(key => {
+        sortedExpensesByCategory[key] = expensesByCategory[key]
+            .sort((a, b) => (moment(a.date).isBefore(moment(b.date))) ? -1 : ((moment(b.date).isBefore(a.date)) ? 1 : 0));
+    })
+
+    // accumulate multiple expenses from the same day and format date
+    const accumulatedSortedExpensesByCategory = {};
+    Object.keys(sortedExpensesByCategory).forEach(key => {
+        const categoryExpenses = sortedExpensesByCategory[key];
+        const accumulated = {};
+        categoryExpenses.forEach(expense => {
+            const date = moment(expense.date).format('DD-MM-yyyy');
+            if (accumulated[date]) {
+                accumulated[date].amount += expense.amount;
+            } else {
+                accumulated[date] = { ...expense, date };
+            }
+        });
+
+        accumulatedSortedExpensesByCategory[key] = Object.values(accumulated);
+    })
+
+    res.json({ response: { summary: expensesSummary, byCategory: accumulatedSortedExpensesByCategory } })
+})
+
+
 app.get('/api/expenses/byCategory/yearly', (req, res) => {
     let filteredExpenses = [...expenses];
     if (req.query.include !== undefined) {
@@ -438,14 +498,7 @@ app.get('/api/expenses/byCategory/yearly', (req, res) => {
         date.set('month', index);
 
         const expensesInMonth = filteredExpenses.filter(e => moment(e.date).isSame(date, 'month'));
-        const expensesByCategory = {};
-        expensesInMonth.forEach(e => {
-            if (expensesByCategory[e.category.name]) {
-                expensesByCategory[e.category.name] += e.amount;
-            } else {
-                expensesByCategory[e.category.name] = e.amount
-            }
-        })
+        const expensesByCategory = accumulateExpensesByCategory(expensesInMonth);
 
         categoriesYearly.push(expensesByCategory);
     }
@@ -471,14 +524,7 @@ app.get('/api/expenses/byCategory', (req, res) => {
         });
     }
 
-    const expensesByCategory = {};
-    expensesInRange.forEach(exp => {
-        if (expensesByCategory[exp.category.name]) {
-            expensesByCategory[exp.category.name] += exp.amount;
-        } else {
-            expensesByCategory[exp.category.name] = exp.amount;
-        }
-    })
+    const expensesByCategory = accumulateExpensesByCategory(expensesInRange);
 
     res.json({ response: expensesByCategory })
 })
@@ -533,6 +579,7 @@ app.post('/api/expenses', (req, res) => {
 
     const newExpense = {
         ...req.body,
+        date: moment(req.body.date).set('hours', 12),
         id: crypto.randomUUID(),
         amount: +req.body.amount,
         currency,
@@ -563,6 +610,19 @@ app.post('/api/categories', (req, res) => {
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
 
+
+function accumulateExpensesByCategory(expenses) {
+    const expensesByCategory = {};
+    expenses.forEach(exp => {
+        if (expensesByCategory[exp.category.name]) {
+            expensesByCategory[exp.category.name] += exp.amount;
+        } else {
+            expensesByCategory[exp.category.name] = exp.amount;
+        }
+    });
+
+    return expensesByCategory;
+}
 
 function applyCategoryFilter(expenses, include, categoryIds) {
     let filteredExpenses = [...expenses];
