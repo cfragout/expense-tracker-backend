@@ -399,21 +399,34 @@ app.get('/api/expenses/yearly', (req, res) => {
 // Expenses
 app.get('/api/expenses/monthly', (req, res) => {
     // needs validations
-    const date = moment(req.query.date);
-    const lastDate = date.daysInMonth();
-    const monthlyExpenses = [];
-    let filteredExpenses = [...expenses];
+    let dateFrom = moment().startOf('month');
+    let dateTo = moment().endOf('month');
+
+    if (req.query.from && req.query.to) {
+        dateFrom = moment(req.query.from).set('hours', 00).set('minutes', 00);
+        dateTo = moment(req.query.to).set('hours', 23).set('minutes', 59);
+    }
+
+    const lastDateIndex = dateTo.diff(dateFrom, 'days') + 1;
+
+    expensesInRange = expenses.filter(e => {
+        const expenseDate = moment(e.date);
+        return expenseDate.isBetween(dateFrom, dateTo, 'hours');
+    });
+
+    let filteredExpenses = [...expensesInRange];
     if (req.query.include !== undefined) {
         filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
     }
 
     // may be able to do this better once mongodb is in place
-    for (let index = 1; index <= lastDate; index++) {
+    const monthlyExpenses = [];
+    for (let index = 0; index < lastDateIndex; index++) {
+        const date = moment(dateFrom).add(index, 'days');
 
-        // all the expenses made in the date === index
         const expensesForToday = filteredExpenses.filter(e => {
             let expenseDate = moment(e.date);
-            return expenseDate.isSame(date, 'month') && expenseDate.date() === index;
+            return expenseDate.isSame(date, 'days');
         });
 
         // need to check currency here
