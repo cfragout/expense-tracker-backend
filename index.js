@@ -397,7 +397,7 @@ app.get('/api/expenses/yearly', (req, res) => {
 
 
 // Expenses
-app.get('/api/expenses/monthly', (req, res) => {
+app.get('/api/expenses/daily', (req, res) => {
     // needs validations
     let dateFrom = moment().startOf('month');
     let dateTo = moment().endOf('month');
