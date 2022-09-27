@@ -608,14 +608,36 @@ app.delete('/api/expenses/:id', (req, res) => {
     const id = req.params.id;
     const expense = expenses.find(e => e.id === id);
     if (expense) {
-        expenses = expenses.filter(e => e.id !== id)
-        res.json({ response: expense })
+        expenses = expenses.filter(e => e.id !== id);
+        res.json({ response: expense });
     } else {
-        res.json({ reponse: undefined })
+        res.json({ reponse: undefined });
+    }
+})
+
+app.put('/api/expenses/:id', (req, res) => {
+    const id = req.params.id;
+    const updatedExpense = req.body;
+    updatedExpense.category = categories.find(c => c.id === (updatedExpense.category.id || updatedExpense.category) );
+    updatedExpense.amount = +updatedExpense.amount;
+    const oldExpense = expenses.find(e => e.id === id);
+    if (oldExpense) {
+        expenses = expenses.filter(e => e.id !== id);
+        expenses.push(updatedExpense)
+        res.json({ response: updatedExpense });
+    } else {
+        res.statusCode(404);
     }
 })
 
 // Categories
+app.get('/api/categories', (req, res) => {
+    res.json({
+        response: categories
+    })
+})
+
+
 app.get('/api/categories', (req, res) => {
     res.json({
         response: categories
