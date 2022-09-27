@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const expenses = [
+let expenses = [
     {
         id: '0',
         amount: 32.15,
@@ -403,8 +403,8 @@ app.get('/api/expenses/daily', (req, res) => {
     let dateTo = moment().endOf('month');
 
     if (req.query.from && req.query.to) {
-        dateFrom = moment(req.query.from).set('hours', 00).set('minutes', 00);
-        dateTo = moment(req.query.to).set('hours', 23).set('minutes', 59);
+        dateFrom = moment(req.query.from).startOf('day');
+        dateTo = moment(req.query.to).endOf('day');
     }
 
     const lastDateIndex = dateTo.diff(dateFrom, 'days') + 1;
@@ -447,8 +447,8 @@ app.get('/api/expenses/byCategory/summary', (req, res) => {
 
     let expensesInRange = [...filteredExpenses];
     if (req.query.from && req.query.to) {
-        const from = moment(req.query.from).set('hours', 00).set('minutes', 00);
-        const to = moment(req.query.to).set('hours', 23).set('minutes', 59);
+        const from = moment(req.query.from).startOf('day');
+        const to = moment(req.query.to).endOf('day');
 
         expensesInRange = expensesInRange.filter(e => {
             const expenseDate = moment(e.date);
@@ -528,8 +528,8 @@ app.get('/api/expenses/byCategory', (req, res) => {
     }
 
     if (req.query.from && req.query.to) {
-        const from = moment(req.query.from).set('hours', 00).set('minutes', 00);
-        const to = moment(req.query.to).set('hours', 23).set('minutes', 59);
+        const from = moment(req.query.from).startOf('day');
+        const to = moment(req.query.to).endOf('day');
 
         expensesInRange = filteredExpenses.filter(e => {
             const expenseDate = moment(e.date);
@@ -550,8 +550,8 @@ app.get('/api/expenses', (req, res) => {
     }
 
     if (req.query.from && req.query.to) {
-        const from = moment(req.query.from).set('hours', 00).set('minutes', 00);
-        const to = moment(req.query.to).set('hours', 23).set('minutes', 59);
+        const from = moment(req.query.from).startOf('day');
+        const to = moment(req.query.to).endOf('day');
 
         expensesInRange = expensesInRange.filter(e => {
             const expenseDate = moment(e.date);
@@ -601,6 +601,18 @@ app.post('/api/expenses', (req, res) => {
 
     expenses.push(newExpense);
     res.json(newExpense);
+})
+
+
+app.delete('/api/expenses/:id', (req, res) => {
+    const id = req.params.id;
+    const expense = expenses.find(e => e.id === id);
+    if (expense) {
+        expenses = expenses.filter(e => e.id !== id)
+        res.json({ response: expense })
+    } else {
+        res.json({ reponse: undefined })
+    }
 })
 
 // Categories
