@@ -18,7 +18,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Supermercado',
-            icon: '',
+            color: '',
             id: '2'
         },
         date: '2022-09-19T20:34:39.163Z'
@@ -31,7 +31,7 @@ const expenses = [
         description: 'Gaseosa',
         category: {
             name: 'Supermercado',
-            icon: '',
+            color: '',
             id: '2'
         },
         date: '2021-09-12T20:34:39.163Z'
@@ -44,7 +44,7 @@ const expenses = [
         description: 'Auto mac',
         category: {
             name: 'Supermercado',
-            icon: '',
+            color: '',
             id: '2'
         },
         date: '2022-09-18T20:34:39.163Z'
@@ -57,7 +57,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Supermercado',
-            icon: '',
+            color: '',
             id: '2'
         },
         date: '2022-09-15T20:34:39.163Z'
@@ -70,7 +70,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Supermercado',
-            icon: '',
+            color: '',
             id: '2'
         },
         date: '2022-09-13T20:34:39.163Z'
@@ -83,7 +83,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Supermercado',
-            icon: '',
+            color: '',
             id: '2'
         },
         date: '2022-09-11T20:34:39.163Z'
@@ -97,7 +97,7 @@ const expenses = [
         category: {
             name: 'Transporte',
             id: '9',
-            icon: ''
+            color: ''
         },
         date: '2022-09-19T21:34:39.163Z'
     },
@@ -109,7 +109,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Supermercado',
-            icon: '',
+            color: '',
             id: '2'
         },
         date: '2021-05-19T20:34:39.163Z'
@@ -122,7 +122,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Supermercado',
-            icon: '',
+            color: '',
             id: '2'
         },
         date: '2022-09-10T20:34:39.163Z'
@@ -135,7 +135,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Supermercado',
-            icon: '',
+            color: '',
             id: '2'
         },
         date: '2022-09-02T20:34:39.163Z'
@@ -148,7 +148,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Supermercado',
-            icon: '',
+            color: '',
             id: '2'
         },
         date: '2022-09-02T20:34:39.163Z'
@@ -161,7 +161,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Supermercado',
-            icon: '2',
+            color: '2',
             id: '2'
         },
         date: '2022-09-02T20:34:39.163Z'
@@ -175,7 +175,7 @@ const expenses = [
         category: {
             name: 'Transporte',
             id: '9',
-            icon: ''
+            color: ''
         },
         date: '2022-09-02T20:34:39.163Z'
     },
@@ -188,7 +188,7 @@ const expenses = [
         category: {
             name: 'Supermercado',
             id: '2',
-            icon: ''
+            color: ''
         },
         date: '2022-07-26T20:34:39.163Z'
     },
@@ -201,7 +201,7 @@ const expenses = [
         category: {
             name: 'Internet',
             id: '645-321-123',
-            icon: ''
+            color: ''
         },
         date: '2022-07-05T20:34:39.163Z'
     },
@@ -214,7 +214,7 @@ const expenses = [
         category: {
             name: 'Supermercado',
             id: '2',
-            icon: ''
+            color: ''
         },
         date: '2022-07-05T20:34:39.163Z'
     },
@@ -227,7 +227,7 @@ const expenses = [
         category: {
             name: 'Supermercado',
             id: '2',
-            icon: ''
+            color: ''
         },
         date: '2022-07-17T20:34:39.163Z'
     },
@@ -240,7 +240,7 @@ const expenses = [
         category: {
             name: 'Alquiler',
             id: '8',
-            icon: ''
+            color: ''
         },
         date: '2022-07-01T20:34:39.163Z'
     },
@@ -253,7 +253,7 @@ const expenses = [
         category: {
             name: 'Alquiler',
             id: '8',
-            icon: ''
+            color: ''
         },
         date: '2022-08-01T20:34:39.163Z'
     },
@@ -266,7 +266,7 @@ const expenses = [
         category: {
             name: 'Alquiler',
             id: '8',
-            icon: ''
+            color: ''
         },
         date: '2022-09-01T20:34:39.163Z'
     },
@@ -278,7 +278,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Internet',
-            icon: '',
+            color: '',
             id: '645-321-123'
         },
         date: '2022-09-02T20:34:39.163Z'
@@ -291,7 +291,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Supermercado',
-            icon: '',
+            color: '',
             id: '2'
         },
         date: '2022-09-22T20:34:39.163Z'
@@ -304,7 +304,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Supermercado',
-            icon: '',
+            color: '',
             id: '2'
         },
         date: '2022-09-29T20:34:39.163Z'
@@ -317,7 +317,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Supermercado',
-            icon: '',
+            color: '',
             id: '2'
         },
         date: '2020-05-20T20:34:39.163Z'
@@ -330,7 +330,7 @@ const expenses = [
         description: '',
         category: {
             name: 'Internet',
-            icon: '',
+            color: '',
             id: '645-321-123'
         },
         date: '2020-05-03T20:34:39.163Z'
@@ -341,27 +341,27 @@ const categories = [
     {
         id: '0',
         name: 'Viajes',
-        icon: 'USD'
+        color: 'USD'
     },
     {
         id: '2',
         name: 'Supermercado',
-        icon: 'GBP'
+        color: 'GBP'
     },
     {
         id: '8',
         name: 'Alquiler',
-        icon: 'ARS'
+        color: 'ARS'
     },
     {
         id: '645-321-123',
         name: 'Internet',
-        icon: 'ARS'
+        color: 'ARS'
     },
     {
         id: '9',
         name: 'Transporte',
-        icon: 'ARS'
+        color: 'ARS'
     },
 ]
 
