@@ -4,10 +4,18 @@ const express = require('express');
 const crypto = require('crypto');
 const cors = require('cors');
 const moment = require('moment');
+const axios = require('axios');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+baseCurrency = 'USD';
+currencies = [baseCurrency, 'GBP', 'EUR', 'CHF', 'ARS'];
+exchangeRate = {};
+mock = true;
+
+const exchangeRateAPI = 'https://api.apilayer.com/exchangerates_data';
 
 let expenses = [
     {
@@ -365,6 +373,7 @@ const categories = [
     },
 ]
 
+
 app.get('/', (req, res) => {
     res.json(crypto.randomUUID())
 })
@@ -576,7 +585,7 @@ app.get('/api/expenses/:id', (req, res) => {
 })
 
 
-app.post('/api/expenses', (req, res) => {
+app.post('/api/expenses', async (req, res) => {
     const { amount, currency } = req.body;
 
     // simple validations
@@ -598,6 +607,7 @@ app.post('/api/expenses', (req, res) => {
         currency,
         category: categories.find(c => c.id === req.body.category) || { name: 'Sin categoria', id: '-1' }
     }
+    newExpense.rates = await getCurrencyRates(currency, amount);
 
     expenses.push(newExpense);
     res.json(newExpense);
@@ -615,10 +625,11 @@ app.delete('/api/expenses/:id', (req, res) => {
     }
 })
 
+
 app.put('/api/expenses/:id', (req, res) => {
     const id = req.params.id;
     const updatedExpense = req.body;
-    updatedExpense.category = categories.find(c => c.id === (updatedExpense.category.id || updatedExpense.category) );
+    updatedExpense.category = categories.find(c => c.id === (updatedExpense.category.id || updatedExpense.category));
     updatedExpense.amount = +updatedExpense.amount;
     const oldExpense = expenses.find(e => e.id === id);
     if (oldExpense) {
@@ -629,6 +640,7 @@ app.put('/api/expenses/:id', (req, res) => {
         res.statusCode(404);
     }
 })
+
 
 // Categories
 app.get('/api/categories', (req, res) => {
@@ -655,8 +667,69 @@ app.post('/api/categories', (req, res) => {
     res.json(newCategory)
 })
 
+
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
 
+
+function convertToBaseCurrency(currency, amount) {
+    return amount / exchangeRate.rates[currency];
+}
+
+
+async function getCurrencyRates(currency, amount) {
+    if (!isRateUpToDate()) {
+        await refreshExchangeRates(mock);
+    }
+
+    const currencyRates = {};
+    const amountInBaseCurrency = convertToBaseCurrency(currency, amount);
+    currencies.forEach(currency => {
+        currencyRates[currency] = amountInBaseCurrency * exchangeRate.rates[currency];
+    })
+
+    return currencyRates;
+}
+
+// returns true if exchange rate is more than 5 hours old
+// returns false if exchange rate has no date or it is more than 5 hours old
+function isRateUpToDate() {
+    return exchangeRate.date && !exchangeRate.date.isBefore(moment().subtract(5, 'hour'))
+}
+
+async function refreshExchangeRates(mock) {
+    const requestOptions = {
+        method: 'GET',
+        redirect: 'follow',
+        headers: { 'apikey': 'O0SCPGfQjbvXsPll2GCoGq31NmoaL3Kh' }
+    };
+
+    if (!mock) {
+        try {
+            const { data } = await axios(`${exchangeRateAPI}/latest?symbols=${currencies.join('%2C')}&base=${baseCurrency}`, requestOptions)
+            exchangeRate = {
+                base: baseCurrency,
+                rates: data.rates,
+                date: moment.unix(data.timestamp)
+            }
+            console.log('Currency rates updated: ', exchangeRate)
+        } catch (error) {
+            console.error(error);
+        }
+    } else {
+        console.log('Exchange rates mocked...')
+        exchangeRate = {
+            base: baseCurrency,
+            rates: {
+                "ARS": 146.851079,
+                "CHF": 0.98147,
+                "EUR": 1.03843,
+                "GBP": 0.930403,
+                "USD": 1
+            },
+            date: moment()
+        }
+    }
+}
 
 function accumulateExpensesByCategory(expenses) {
     const expensesByCategory = {};
