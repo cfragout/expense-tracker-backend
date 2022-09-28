@@ -17,333 +17,7 @@ mock = true;
 
 const exchangeRateAPI = 'https://api.apilayer.com/exchangerates_data';
 
-let expenses = [
-    {
-        id: '0',
-        amount: 32.15,
-        user: 'juan',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Supermercado',
-            color: '',
-            id: '2'
-        },
-        date: '2022-09-19T20:34:39.163Z'
-    },
-    {
-        id: '1',
-        amount: 17.50,
-        user: 'testy',
-        currency: '2',
-        description: 'Gaseosa',
-        category: {
-            name: 'Supermercado',
-            color: '',
-            id: '2'
-        },
-        date: '2021-09-12T20:34:39.163Z'
-    },
-    {
-        id: '2',
-        amount: 25,
-        user: 'testy',
-        currency: '2',
-        description: 'Auto mac',
-        category: {
-            name: 'Supermercado',
-            color: '',
-            id: '2'
-        },
-        date: '2022-09-18T20:34:39.163Z'
-    },
-    {
-        id: '3',
-        amount: 14,
-        user: 'testy',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Supermercado',
-            color: '',
-            id: '2'
-        },
-        date: '2022-09-15T20:34:39.163Z'
-    },
-    {
-        id: '4',
-        amount: 2,
-        user: 'testy',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Supermercado',
-            color: '',
-            id: '2'
-        },
-        date: '2022-09-13T20:34:39.163Z'
-    },
-    {
-        id: '5',
-        amount: 1.99,
-        user: 'testy',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Supermercado',
-            color: '',
-            id: '2'
-        },
-        date: '2022-09-11T20:34:39.163Z'
-    },
-    {
-        id: '6',
-        amount: 7.50,
-        user: 'testy',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Transporte',
-            id: '9',
-            color: ''
-        },
-        date: '2022-09-19T21:34:39.163Z'
-    },
-    {
-        id: '7',
-        amount: 1.01,
-        user: 'testy',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Supermercado',
-            color: '',
-            id: '2'
-        },
-        date: '2021-05-19T20:34:39.163Z'
-    },
-    {
-        id: '8',
-        amount: 9.99,
-        user: 'testy',
-        currency: '1',
-        description: '',
-        category: {
-            name: 'Supermercado',
-            color: '',
-            id: '2'
-        },
-        date: '2022-09-10T20:34:39.163Z'
-    },
-    {
-        id: '9',
-        amount: 77.50,
-        user: 'juan',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Supermercado',
-            color: '',
-            id: '2'
-        },
-        date: '2022-09-02T20:34:39.163Z'
-    },
-    {
-        id: '10',
-        amount: 10,
-        user: 'juan',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Supermercado',
-            color: '',
-            id: '2'
-        },
-        date: '2022-09-02T20:34:39.163Z'
-    },
-    {
-        id: '11',
-        amount: 100,
-        user: 'juan',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Supermercado',
-            color: '2',
-            id: '2'
-        },
-        date: '2022-09-02T20:34:39.163Z'
-    },
-    {
-        id: '12',
-        amount: 30,
-        user: 'testy',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Transporte',
-            id: '9',
-            color: ''
-        },
-        date: '2022-09-02T20:34:39.163Z'
-    },
-    {
-        id: '13',
-        amount: 27.76,
-        user: 'juan',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Supermercado',
-            id: '2',
-            color: ''
-        },
-        date: '2022-07-26T20:34:39.163Z'
-    },
-    {
-        id: '55',
-        amount: 12,
-        user: 'juan',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Internet',
-            id: '645-321-123',
-            color: ''
-        },
-        date: '2022-07-05T20:34:39.163Z'
-    },
-    {
-        id: '55',
-        amount: 245,
-        user: 'juan',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Supermercado',
-            id: '2',
-            color: ''
-        },
-        date: '2022-07-05T20:34:39.163Z'
-    },
-    {
-        id: '66',
-        amount: 101.23,
-        user: 'juan',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Supermercado',
-            id: '2',
-            color: ''
-        },
-        date: '2022-07-17T20:34:39.163Z'
-    },
-    {
-        id: '77',
-        amount: 3000,
-        user: 'juan',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Alquiler',
-            id: '8',
-            color: ''
-        },
-        date: '2022-07-01T20:34:39.163Z'
-    },
-    {
-        id: '88',
-        amount: 3000,
-        user: 'juan',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Alquiler',
-            id: '8',
-            color: ''
-        },
-        date: '2022-08-01T20:34:39.163Z'
-    },
-    {
-        id: '99',
-        amount: 3000,
-        user: 'juan',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Alquiler',
-            id: '8',
-            color: ''
-        },
-        date: '2022-09-01T20:34:39.163Z'
-    },
-    {
-        id: '14',
-        amount: 12,
-        user: 'juan',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Internet',
-            color: '',
-            id: '645-321-123'
-        },
-        date: '2022-09-02T20:34:39.163Z'
-    },
-    {
-        id: '15',
-        amount: 22.12,
-        user: 'juan',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Supermercado',
-            color: '',
-            id: '2'
-        },
-        date: '2022-09-22T20:34:39.163Z'
-    },
-    {
-        id: '16',
-        amount: 69.05,
-        user: 'juan',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Supermercado',
-            color: '',
-            id: '2'
-        },
-        date: '2022-09-29T20:34:39.163Z'
-    },
-    {
-        id: '17',
-        amount: 71.03,
-        user: 'juan',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Supermercado',
-            color: '',
-            id: '2'
-        },
-        date: '2020-05-20T20:34:39.163Z'
-    },
-    {
-        id: '18',
-        amount: 30,
-        user: 'juan',
-        currency: '2',
-        description: '',
-        category: {
-            name: 'Internet',
-            color: '',
-            id: '645-321-123'
-        },
-        date: '2020-05-03T20:34:39.163Z'
-    },
-]
+let expenses = [];
 
 const categories = [
     {
@@ -382,6 +56,7 @@ app.get('/', (req, res) => {
 app.get('/api/expenses/yearly', (req, res) => {
     // needs validations
     const date = moment(req.query.date);
+    const currency = req.query.currency || baseCurrency;
     let filteredExpenses = [...expenses];
     if (req.query.include !== undefined) {
         filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
@@ -397,7 +72,7 @@ app.get('/api/expenses/yearly', (req, res) => {
         yearlyExpenses.push({
             name: moment().set('month', index).format('MMMM'),
             monthIndex: index,
-            expenses: monthlyExpenses.length > 0 ? monthlyExpenses.map(e => e.amount).reduce((prev, cur) => prev + cur) : 0
+            expenses: monthlyExpenses.length > 0 ? listWithPreferredCurrency(currency, monthlyExpenses).map(e => e.amount).reduce((prev, cur) => prev + cur) : 0
         });
     }
 
@@ -410,6 +85,7 @@ app.get('/api/expenses/daily', (req, res) => {
     // needs validations
     let dateFrom = moment().startOf('month');
     let dateTo = moment().endOf('month');
+    const currency = req.query.currency || baseCurrency;
 
     if (req.query.from && req.query.to) {
         dateFrom = moment(req.query.from).startOf('day');
@@ -439,7 +115,7 @@ app.get('/api/expenses/daily', (req, res) => {
         });
 
         // need to check currency here
-        const totalExpenses = expensesForToday.length > 0 ? expensesForToday.map(e => e.amount).reduce((prev, current) => prev + current) : 0;
+        const totalExpenses = expensesForToday.length > 0 ? listWithPreferredCurrency(currency, expensesForToday).map(e => e.amount).reduce((prev, current) => prev + current) : 0;
 
         monthlyExpenses.push(totalExpenses);
     }
@@ -450,6 +126,8 @@ app.get('/api/expenses/daily', (req, res) => {
 
 app.get('/api/expenses/byCategory/summary', (req, res) => {
     let filteredExpenses = [...expenses];
+    const currency = req.query.currency || baseCurrency;
+
     if (req.query.include !== undefined) {
         filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
     }
@@ -464,6 +142,9 @@ app.get('/api/expenses/byCategory/summary', (req, res) => {
             return expenseDate.isBetween(from, to, 'hours');
         });
     }
+
+    // get expenses in preferred currency
+    expensesInRange = listWithPreferredCurrency(currency, expensesInRange)
 
     // sort expenses by ammount
     expensesInRange.sort((a, b) => (a.amount > b.amount) ? -1 : ((b.amount > a.amount) ? 1 : 0));
@@ -510,6 +191,8 @@ app.get('/api/expenses/byCategory/summary', (req, res) => {
 
 app.get('/api/expenses/byCategory/yearly', (req, res) => {
     let filteredExpenses = [...expenses];
+    const currency = req.query.currency || baseCurrency;
+
     if (req.query.include !== undefined) {
         filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
     }
@@ -519,7 +202,7 @@ app.get('/api/expenses/byCategory/yearly', (req, res) => {
     for (let index = 0; index < 12; index++) {
         date.set('month', index);
 
-        const expensesInMonth = filteredExpenses.filter(e => moment(e.date).isSame(date, 'month'));
+        const expensesInMonth = listWithPreferredCurrency(currency, filteredExpenses).filter(e => moment(e.date).isSame(date, 'month'));
         const expensesByCategory = accumulateExpensesByCategory(expensesInMonth);
 
         categoriesYearly.push(expensesByCategory);
@@ -532,6 +215,8 @@ app.get('/api/expenses/byCategory/yearly', (req, res) => {
 app.get('/api/expenses/byCategory', (req, res) => {
     // needs validations
     let filteredExpenses = [...expenses];
+    const currency = req.query.currency || baseCurrency;
+
     if (req.query.include !== undefined) {
         filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
     }
@@ -540,7 +225,7 @@ app.get('/api/expenses/byCategory', (req, res) => {
         const from = moment(req.query.from).startOf('day');
         const to = moment(req.query.to).endOf('day');
 
-        expensesInRange = filteredExpenses.filter(e => {
+        expensesInRange = listWithPreferredCurrency(currency, filteredExpenses).filter(e => {
             const expenseDate = moment(e.date);
             return expenseDate.isBetween(from, to, 'hours');
         });
@@ -554,6 +239,8 @@ app.get('/api/expenses/byCategory', (req, res) => {
 
 app.get('/api/expenses', (req, res) => {
     let expensesInRange = [...expenses];
+    const currency = req.query.currency || baseCurrency;
+
     if (req.query.include !== undefined) {
         expensesInRange = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(''));
     }
@@ -569,16 +256,17 @@ app.get('/api/expenses', (req, res) => {
     }
 
     res.json({
-        response: expensesInRange
+        response: listWithPreferredCurrency(currency, expensesInRange)
     })
 })
 
 
 app.get('/api/expenses/:id', (req, res) => {
     const expense = expenses.find(e => e.id === req.params.id);
+    const currency = req.query.currency || baseCurrency;
 
     if (expense) {
-        res.json(expense);
+        res.json({ resposne: withPreferredCurrency(currency, expense) });
     } else {
         res.status(404).end();
     }
@@ -604,7 +292,9 @@ app.post('/api/expenses', async (req, res) => {
         date: moment(req.body.date).set('hours', 12),
         id: crypto.randomUUID(),
         amount: +req.body.amount,
+        originalAmount: +req.body.amount,
         currency,
+        originalCurrency: currency,
         category: categories.find(c => c.id === req.body.category) || { name: 'Sin categoria', id: '-1' }
     }
     newExpense.rates = await getCurrencyRates(currency, amount);
@@ -671,20 +361,38 @@ app.post('/api/categories', (req, res) => {
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
 
 
-function convertToBaseCurrency(currency, amount) {
-    return amount / exchangeRate.rates[currency];
+
+function convertToBaseCurrency(originalCurrency, amount) {
+    return amount / exchangeRate.rates[originalCurrency];
 }
 
+function converToCurrency(from, to, amount) {
+    const amountInBaseCurrency = this.convertToBaseCurrency(from, amount);
 
-async function getCurrencyRates(currency, amount) {
+}
+
+// given a list of expenses, modify each one to contain the amount in the preferred currency
+function listWithPreferredCurrency(expectedCurrency, expenses) {
+    return expenses.map(expense => withPreferredCurrency(expectedCurrency, expense));
+}
+
+function withPreferredCurrency(expectedCurrency, expense) {
+    return {
+        ...expense,
+        amount: round(expense.rates[expectedCurrency]),
+        currency: expectedCurrency
+    }
+}
+
+async function getCurrencyRates(amountCurrency, amount) {
     if (!isRateUpToDate()) {
         await refreshExchangeRates(mock);
     }
 
     const currencyRates = {};
-    const amountInBaseCurrency = convertToBaseCurrency(currency, amount);
+    const amountInBaseCurrency = convertToBaseCurrency(amountCurrency, amount);
     currencies.forEach(currency => {
-        currencyRates[currency] = amountInBaseCurrency * exchangeRate.rates[currency];
+        currencyRates[currency] = currency === amountCurrency ? +amount : amountInBaseCurrency * exchangeRate.rates[currency];
     })
 
     return currencyRates;
@@ -757,4 +465,8 @@ function applyCategoryFilter(expenses, include, categoryIds) {
     });
 
     return filteredExpenses;
+}
+
+function round(num) {
+    return Math.round((num + Number.EPSILON) * 100) / 100;
 }
