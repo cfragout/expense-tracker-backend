@@ -316,11 +316,13 @@ app.delete('/api/expenses/:id', (req, res) => {
 })
 
 
-app.put('/api/expenses/:id', (req, res) => {
+app.put('/api/expenses/:id', async (req, res) => {
     const id = req.params.id;
     const updatedExpense = req.body;
     updatedExpense.category = categories.find(c => c.id === (updatedExpense.category.id || updatedExpense.category));
     updatedExpense.amount = +updatedExpense.amount;
+    updatedExpense.rates = await getCurrencyRates(updatedExpense.currency, updatedExpense.amount);
+
     const oldExpense = expenses.find(e => e.id === id);
     if (oldExpense) {
         expenses = expenses.filter(e => e.id !== id);
