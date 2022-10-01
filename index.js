@@ -1,5 +1,7 @@
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 
+require('dotenv').config();
+require('./database');
 const express = require('express');
 const crypto = require('crypto');
 const cors = require('cors');
@@ -16,6 +18,9 @@ exchangeRate = {};
 mock = true;
 
 const exchangeRateAPI = 'https://api.apilayer.com/exchangerates_data';
+
+const Expense = require('./Expense');
+const Category = require('./Category');
 
 let expenses = [];
 
@@ -53,11 +58,11 @@ app.get('/', (req, res) => {
 })
 
 
-app.get('/api/expenses/yearly', (req, res) => {
+app.get('/api/expenses/yearly', async (req, res) => {
     // needs validations
     const date = moment(req.query.date);
     const currency = req.query.currency || baseCurrency;
-    let filteredExpenses = [...expenses];
+    let filteredExpenses = await getAllExpenses();
     if (req.query.include !== undefined) {
         filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
     }
@@ -81,7 +86,7 @@ app.get('/api/expenses/yearly', (req, res) => {
 
 
 // Expenses
-app.get('/api/expenses/daily', (req, res) => {
+app.get('/api/expenses/daily', async (req, res) => {
     // needs validations
     let dateFrom = moment().startOf('month');
     let dateTo = moment().endOf('month');
@@ -93,6 +98,7 @@ app.get('/api/expenses/daily', (req, res) => {
     }
 
     const lastDateIndex = dateTo.diff(dateFrom, 'days') + 1;
+    const expenses = await getAllExpenses();
 
     expensesInRange = expenses.filter(e => {
         const expenseDate = moment(e.date);
@@ -124,8 +130,8 @@ app.get('/api/expenses/daily', (req, res) => {
 })
 
 
-app.get('/api/expenses/byCategory/summary', (req, res) => {
-    let filteredExpenses = [...expenses];
+app.get('/api/expenses/byCategory/summary', async (req, res) => {
+    let filteredExpenses = await getAllExpenses();
     const currency = req.query.currency || baseCurrency;
 
     if (req.query.include !== undefined) {
@@ -189,8 +195,8 @@ app.get('/api/expenses/byCategory/summary', (req, res) => {
 })
 
 
-app.get('/api/expenses/byCategory/yearly', (req, res) => {
-    let filteredExpenses = [...expenses];
+app.get('/api/expenses/byCategory/yearly', async (req, res) => {
+    let filteredExpenses = await getAllExpenses();
     const currency = req.query.currency || baseCurrency;
 
     if (req.query.include !== undefined) {
@@ -212,9 +218,9 @@ app.get('/api/expenses/byCategory/yearly', (req, res) => {
 })
 
 
-app.get('/api/expenses/byCategory', (req, res) => {
+app.get('/api/expenses/byCategory', async (req, res) => {
     // needs validations
-    let filteredExpenses = [...expenses];
+    let filteredExpenses = await getAllExpenses();
     const currency = req.query.currency || baseCurrency;
 
     if (req.query.include !== undefined) {
@@ -237,8 +243,8 @@ app.get('/api/expenses/byCategory', (req, res) => {
 })
 
 
-app.get('/api/expenses', (req, res) => {
-    let expensesInRange = [...expenses];
+app.get('/api/expenses', async (req, res) => {
+    let expensesInRange = await getAllExpenses();
     const currency = req.query.currency || baseCurrency;
 
     if (req.query.include !== undefined) {
@@ -261,8 +267,8 @@ app.get('/api/expenses', (req, res) => {
 })
 
 
-app.get('/api/expenses/:id', (req, res) => {
-    const expense = expenses.find(e => e.id === req.params.id);
+app.get('/api/expenses/:id', async (req, res) => {
+    const expense = await findExpenseById(req.params.id);
     const currency = req.query.currency || baseCurrency;
 
     if (expense) {
@@ -287,47 +293,41 @@ app.post('/api/expenses', async (req, res) => {
         res.send('Currency is required');
     }
 
-    const newExpense = {
-        ...req.body,
+    const newExpense = await Expense.create({
         date: moment(req.body.date).set('hours', 12),
-        id: crypto.randomUUID(),
-        amount: +req.body.amount,
-        originalAmount: +req.body.amount,
+        amount: req.body.amount,
+        originalAmount: req.body.amount,
         currency,
         originalCurrency: currency,
-        category: categories.find(c => c.id === req.body.category) || { name: 'Sin categoria', id: '-1' }
-    }
-    newExpense.rates = await getCurrencyRates(currency, amount);
+        category: req.body.category.id,
+        rates: await getCurrencyRates(currency, amount)
+    });
 
-    expenses.push(newExpense);
-    res.json(newExpense);
+    res.json({ response: newExpense });
 })
 
 
-app.delete('/api/expenses/:id', (req, res) => {
+app.delete('/api/expenses/:id', async (req, res) => {
     const id = req.params.id;
-    const expense = expenses.find(e => e.id === id);
-    if (expense) {
-        expenses = expenses.filter(e => e.id !== id);
-        res.json({ response: expense });
-    } else {
-        res.json({ reponse: undefined });
-    }
+    await Expense.deleteOne({ _id: id });
+    res.json({ reponse: undefined });
 })
 
 
 app.put('/api/expenses/:id', async (req, res) => {
     const id = req.params.id;
     const updatedExpense = req.body;
-    updatedExpense.category = categories.find(c => c.id === (updatedExpense.category.id || updatedExpense.category));
-    updatedExpense.amount = +updatedExpense.amount;
-    updatedExpense.rates = await getCurrencyRates(updatedExpense.currency, updatedExpense.amount);
-
-    const oldExpense = expenses.find(e => e.id === id);
-    if (oldExpense) {
-        expenses = expenses.filter(e => e.id !== id);
-        expenses.push(updatedExpense)
-        res.json({ response: updatedExpense });
+    let expense = await Expense.findById(id) //.populate('category');
+    if (expense) {
+        expense.amount = updatedExpense.amount;
+        expense.date = updatedExpense.date;
+        expense.description = updatedExpense.description;
+        expense.currency = updatedExpense.currency;
+        expense.updatedAt = Date.now()
+        expense.category = updatedExpense.category;
+        expense.rates = await getCurrencyRates(updatedExpense.currency, updatedExpense.amount);
+        await expense.save();
+        res.json({ response: expense });
     } else {
         res.statusCode(404);
     }
@@ -335,28 +335,19 @@ app.put('/api/expenses/:id', async (req, res) => {
 
 
 // Categories
-app.get('/api/categories', (req, res) => {
+app.get('/api/categories', async (req, res) => {
     res.json({
-        response: categories
+        response: await Category.find()
     })
 })
 
 
-app.get('/api/categories', (req, res) => {
-    res.json({
-        response: categories
-    })
-})
+app.post('/api/categories', async (req, res) => {
+    const newCategory = await Category.create({
+        ...req.body
+    });
 
-
-app.post('/api/categories', (req, res) => {
-    const newCategory = {
-        ...req.body,
-        id: crypto.randomUUID()
-    }
-
-    categories.push(newCategory);
-    res.json(newCategory)
+    res.json({ response: newCategory })
 })
 
 
@@ -366,11 +357,6 @@ app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
 
 function convertToBaseCurrency(originalCurrency, amount) {
     return amount / exchangeRate.rates[originalCurrency];
-}
-
-function converToCurrency(from, to, amount) {
-    const amountInBaseCurrency = this.convertToBaseCurrency(from, amount);
-
 }
 
 // given a list of expenses, modify each one to contain the amount in the preferred currency
@@ -471,4 +457,12 @@ function applyCategoryFilter(expenses, include, categoryIds) {
 
 function round(num) {
     return Math.round((num + Number.EPSILON) * 100) / 100;
+}
+
+async function getAllExpenses() {
+    return await Expense.find().populate('category').lean();
+}
+
+async function findExpenseById(id) {
+    return await Expense.findById(id).populate('category').lean();
 }
