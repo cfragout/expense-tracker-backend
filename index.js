@@ -1,3 +1,6 @@
+// Use mongo DB queries instead of loading every expense in the DB in memory
+
+
 const PORT = process.env.PORT || 8000;
 
 require('dotenv').config();
@@ -13,7 +16,7 @@ app.use(express.json());
 app.use(cors());
 
 baseCurrency = 'USD';
-currencies = [baseCurrency, 'GBP', 'EUR', 'CHF', 'ARS'];
+currencies = [baseCurrency, 'GBP', 'EUR', 'CHF', 'ARS', ];
 exchangeRate = {};
 mock = true;
 
@@ -21,36 +24,6 @@ const exchangeRateAPI = 'https://api.apilayer.com/exchangerates_data';
 
 const Expense = require('./Expense');
 const Category = require('./Category');
-
-let expenses = [];
-
-const categories = [
-    {
-        id: '0',
-        name: 'Viajes',
-        color: 'USD'
-    },
-    {
-        id: '2',
-        name: 'Supermercado',
-        color: 'GBP'
-    },
-    {
-        id: '8',
-        name: 'Alquiler',
-        color: 'ARS'
-    },
-    {
-        id: '645-321-123',
-        name: 'Internet',
-        color: 'ARS'
-    },
-    {
-        id: '9',
-        name: 'Transporte',
-        color: 'ARS'
-    },
-]
 
 
 app.get('/', (req, res) => {
@@ -62,12 +35,12 @@ app.get('/api/expenses/yearly', async (req, res) => {
     // needs validations
     const date = moment(req.query.date);
     const currency = req.query.currency || baseCurrency;
-    let filteredExpenses = await getAllExpenses();
+    let expenses = await getAllExpenses();
     if (req.query.include !== undefined) {
-        filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
+        expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
     }
 
-    const expensesInSameYear = filteredExpenses.filter(e => moment(e.date).isSame(date, 'year'));
+    const expensesInSameYear = expenses.filter(e => moment(e.date).isSame(date, 'year'));
     const yearlyExpenses = [];
 
     for (let index = 0; index < 12; index++) {
@@ -131,14 +104,14 @@ app.get('/api/expenses/daily', async (req, res) => {
 
 
 app.get('/api/expenses/byCategory/summary', async (req, res) => {
-    let filteredExpenses = await getAllExpenses();
+    let expenses = await getAllExpenses();
     const currency = req.query.currency || baseCurrency;
 
     if (req.query.include !== undefined) {
-        filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
+        expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
     }
 
-    let expensesInRange = [...filteredExpenses];
+    let expensesInRange = [...expenses];
     if (req.query.from && req.query.to) {
         const from = moment(req.query.from).startOf('day');
         const to = moment(req.query.to).endOf('day');
@@ -196,11 +169,11 @@ app.get('/api/expenses/byCategory/summary', async (req, res) => {
 
 
 app.get('/api/expenses/byCategory/yearly', async (req, res) => {
-    let filteredExpenses = await getAllExpenses();
+    let expenses = await getAllExpenses();
     const currency = req.query.currency || baseCurrency;
 
     if (req.query.include !== undefined) {
-        filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
+        expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
     }
 
     const categoriesYearly = []
@@ -208,7 +181,7 @@ app.get('/api/expenses/byCategory/yearly', async (req, res) => {
     for (let index = 0; index < 12; index++) {
         date.set('month', index);
 
-        const expensesInMonth = listWithPreferredCurrency(currency, filteredExpenses).filter(e => moment(e.date).isSame(date, 'month'));
+        const expensesInMonth = listWithPreferredCurrency(currency, expenses).filter(e => moment(e.date).isSame(date, 'month'));
         const expensesByCategory = accumulateExpensesByCategory(expensesInMonth);
 
         categoriesYearly.push(expensesByCategory);
@@ -220,18 +193,18 @@ app.get('/api/expenses/byCategory/yearly', async (req, res) => {
 
 app.get('/api/expenses/byCategory', async (req, res) => {
     // needs validations
-    let filteredExpenses = await getAllExpenses();
+    let expenses = await getAllExpenses();
     const currency = req.query.currency || baseCurrency;
 
     if (req.query.include !== undefined) {
-        filteredExpenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
+        expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
     }
 
     if (req.query.from && req.query.to) {
         const from = moment(req.query.from).startOf('day');
         const to = moment(req.query.to).endOf('day');
 
-        expensesInRange = listWithPreferredCurrency(currency, filteredExpenses).filter(e => {
+        expensesInRange = listWithPreferredCurrency(currency, expenses).filter(e => {
             const expenseDate = moment(e.date);
             return expenseDate.isBetween(from, to, 'hours');
         });
@@ -244,25 +217,25 @@ app.get('/api/expenses/byCategory', async (req, res) => {
 
 
 app.get('/api/expenses', async (req, res) => {
-    let expensesInRange = await getAllExpenses();
+    let expenses = await getAllExpenses();
     const currency = req.query.currency || baseCurrency;
 
     if (req.query.include !== undefined) {
-        expensesInRange = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(''));
+        expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(''));
     }
 
     if (req.query.from && req.query.to) {
         const from = moment(req.query.from).startOf('day');
         const to = moment(req.query.to).endOf('day');
 
-        expensesInRange = expensesInRange.filter(e => {
+        expenses = expenses.filter(e => {
             const expenseDate = moment(e.date);
             return expenseDate.isBetween(from, to, 'hours');
         });
     }
 
     res.json({
-        response: listWithPreferredCurrency(currency, expensesInRange)
+        response: listWithPreferredCurrency(currency, expenses)
     })
 })
 
@@ -446,14 +419,13 @@ function accumulateExpensesByCategory(expenses) {
 }
 
 function applyCategoryFilter(expenses, include, categoryIds) {
-    let filteredExpenses = [...expenses];
     filteredExpenses = expenses.filter(e => {
         if (include === 'true') {
             // only get the expenses from included categories
-            return categoryIds.indexOf(e.category.id) > -1;
+            return categoryIds.indexOf(e.category._id.toString()) > -1;
         } else {
             // only filter out the expenses from excluded categories
-            return categoryIds.indexOf(e.category.id) === -1;
+            return categoryIds.indexOf(e.category._id.toString()) === -1;
         }
     });
 
