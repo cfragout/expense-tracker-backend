@@ -280,17 +280,22 @@ app.get('/api/expenses/:id', async (req, res) => {
 
 
 app.post('/api/expenses', async (req, res) => {
-    const { amount, currency } = req.body;
+    const { amount, currency, category } = req.body;
 
     // simple validations
     if (!amount) {
-        res.status(403);
-        res.send('Amount is required');
+        res.status(403).send('Amount is required');
+        return;
     }
 
     if (!currency) {
-        res.status(403);
-        res.send('Currency is required');
+        res.status(403).send('Currency is required');
+        return;
+    }
+
+    if (!category) {
+        res.status(403).send('Category is required');
+        return;
     }
 
     const newExpense = await Expense.create({
