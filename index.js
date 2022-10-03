@@ -10,13 +10,14 @@ const crypto = require('crypto');
 const cors = require('cors');
 const moment = require('moment');
 const axios = require('axios');
+const fs = require('fs').promises;
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 baseCurrency = 'USD';
-currencies = [baseCurrency, 'GBP', 'EUR', 'CHF', 'ARS', ];
+currencyShortNames = [];
 exchangeRate = {};
 mock = true;
 
@@ -329,7 +330,11 @@ app.post('/api/categories', async (req, res) => {
 })
 
 
-app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
+app.listen(PORT, async () => {
+    currencies = await readJsonFile('./currencies.json');
+    currencyShortNames = currencies.map(c => c.shortName);
+    console.log(`Listening on port ${PORT}`);
+});
 
 
 
@@ -357,7 +362,7 @@ async function getCurrencyRates(amountCurrency, amount) {
 
     const currencyRates = {};
     const amountInBaseCurrency = convertToBaseCurrency(amountCurrency, amount);
-    currencies.forEach(currency => {
+    currencyShortNames.forEach(currency => {
         currencyRates[currency] = currency === amountCurrency ? +amount : amountInBaseCurrency * exchangeRate.rates[currency];
     })
 
@@ -379,7 +384,7 @@ async function refreshExchangeRates(mock) {
 
     if (!mock) {
         try {
-            const { data } = await axios(`${exchangeRateAPI}/latest?symbols=${currencies.join('%2C')}&base=${baseCurrency}`, requestOptions)
+            const { data } = await axios(`${exchangeRateAPI}/latest?symbols=${currencyShortNames.join('%2C')}&base=${baseCurrency}`, requestOptions)
             exchangeRate = {
                 base: baseCurrency,
                 rates: data.rates,
@@ -394,11 +399,26 @@ async function refreshExchangeRates(mock) {
         exchangeRate = {
             base: baseCurrency,
             rates: {
-                "ARS": 146.851079,
-                "CHF": 0.98147,
-                "EUR": 1.03843,
-                "GBP": 0.930403,
-                "USD": 1
+                USD: 1,
+                GBP: 0.897103,
+                ARS: 146.9829,
+                EUR: 1.019185,
+                CHF: 0.98512,
+                HRK: 7.673699,
+                CZK: 25.055035,
+                HUF: 430.694998,
+                SEK: 11.080299,
+                ISK: 144.010262,
+                DKK: 7.578701,
+                NOK: 10.85668,
+                RON: 5.050102,
+                BGN: 1.99559,
+                PLN: 4.945399,
+                BAM: 1.995338,
+                TRY: 18.517197,
+                AUD: 1.55498,
+                NZD: 1.775285,
+                JPY: 144.75899
             },
             date: moment()
         }
@@ -442,4 +462,9 @@ async function getAllExpenses() {
 
 async function findExpenseById(id) {
     return await Expense.findById(id).populate('category').lean();
+}
+
+async function readJsonFile(fileName) {
+    const data = await fs.readFile(fileName, 'utf8');
+    return JSON.parse(data);
 }

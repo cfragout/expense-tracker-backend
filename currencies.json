@@ -1,0 +1,122 @@
+[
+    {
+        "id": "0",
+        "name": "United States Dollar",
+        "shortName": "USD",
+        "symbol": "$"
+    },
+    {
+        "id": "1",
+        "name": "Great Britain Pound",
+        "shortName": "GBP",
+        "symbol": "£"
+    },
+    {
+        "id": "2",
+        "name": "Peso Argentino",
+        "shortName": "ARS",
+        "symbol": "$"
+    },
+    {
+        "id": "3",
+        "name": "Euro",
+        "shortName": "EUR",
+        "symbol": "€"
+    },
+    {
+        "id": "4",
+        "name": "Franco Suizo",
+        "shortName": "CHF",
+        "symbol": "CHF"
+    },
+    {
+        "id": "5",
+        "name": "Kuna Croata",
+        "shortName": "HRK",
+        "symbol": "kn."
+    },
+    {
+        "id": "6",
+        "name": "Corona Checa",
+        "shortName": "CZK",
+        "symbol": "Kč"
+    },
+    {
+        "id": "7",
+        "name": "Forint Hungaro",
+        "shortName": "HUF",
+        "symbol": "Ft."
+    },
+    {
+        "id": "8",
+        "name": "Corona Sueca",
+        "shortName": "SEK",
+        "symbol": "kr."
+    },
+    {
+        "id": "9",
+        "name": "Corona Islandesa",
+        "shortName": "ISK",
+        "symbol": "kr."
+    },
+    {
+        "id": "10",
+        "name": "Corona Danesa",
+        "shortName": "DKK",
+        "symbol": "kr."
+    },
+    {
+        "id": "11",
+        "name": "Corona Noruega",
+        "shortName": "NOK",
+        "symbol": "kr."
+    },
+    {
+        "id": "12",
+        "name": "Leu Rumano",
+        "shortName": "RON",
+        "symbol": "lei"
+    },
+    {
+        "id": "13",
+        "name": "Lev Bulgaron",
+        "shortName": "BGN",
+        "symbol": "лв."
+    },
+    {
+        "id": "14",
+        "name": "Złoty",
+        "shortName": "PLN",
+        "symbol": "zł."
+    },
+    {
+        "id": "15",
+        "name": "Mark Bosnio",
+        "shortName": "BAM",
+        "symbol": "KM"
+    },
+    {
+        "id": "16",
+        "name": "Lira Turca",
+        "shortName": "TRY",
+        "symbol": "₺"
+    },
+    {
+        "id": "17",
+        "name": "Dolar Australiano",
+        "shortName": "AUD",
+        "symbol": "AU$"
+    },
+    {
+        "id": "18",
+        "name": "Dolar Neozelandes",
+        "shortName": "NZD",
+        "symbol": "NZ$"
+    },
+    {
+        "id": "19",
+        "name": "",
+        "shortName": "JPY",
+        "symbol": ""
+    }
+]
