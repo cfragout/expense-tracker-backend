@@ -169,6 +169,25 @@ app.get('/api/expenses/byCategory/summary', async (req, res) => {
 })
 
 
+app.get('/api/expenses/byCategory/weekday', async (req, res) => {
+    let expenses = await getAllExpenses();
+    const currency = req.query.currency || baseCurrency;
+
+    if (req.query.include !== undefined) {
+        expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
+    }
+
+    const categoriesWeekday = []
+    for (let index = 0; index <= 6; index++) {
+        const expensesInDay = expenses.filter(e => +moment(e.date).format('d') === index);
+        const expensesByCategory = accumulateExpensesByCategory(listWithPreferredCurrency(currency, expensesInDay));
+
+        categoriesWeekday[index] = expensesByCategory;
+    }
+
+    res.json({ response: categoriesWeekday })
+})
+
 app.get('/api/expenses/byCategory/yearly', async (req, res) => {
     let expenses = await getAllExpenses();
     const currency = req.query.currency || baseCurrency;
