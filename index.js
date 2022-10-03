@@ -330,6 +330,14 @@ app.post('/api/categories', async (req, res) => {
 })
 
 
+// Currencies
+app.get('/api/currencies', async (req, res) => {
+    res.json({
+        response: currencies
+    })
+})
+
+
 app.listen(PORT, async () => {
     currencies = await readJsonFile('./currencies.json');
     currencyShortNames = currencies.map(c => c.shortName);
