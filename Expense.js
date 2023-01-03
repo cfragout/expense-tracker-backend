@@ -9,6 +9,10 @@ const expenseSchema = new mongoose.Schema({
         type: mongoose.SchemaTypes.ObjectId,
         ref: 'Category'
     },
+    subCategories: [{
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: 'Category'
+    }],
     currency: String,
     originalAmount: {
         type: Number,

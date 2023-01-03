@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
 app.get('/api/expenses/yearly', async (req, res) => {
     // needs validations
     const date = moment(req.query.date);
-    const currency = req.query.currency || baseCurrency;
+    const currency = getRequestCurrency(req);
     let expenses = await getAllExpenses();
     if (req.query.include !== undefined) {
         expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
@@ -64,7 +64,7 @@ app.get('/api/expenses/daily', async (req, res) => {
     // needs validations
     let dateFrom = moment().startOf('month');
     let dateTo = moment().endOf('month');
-    const currency = req.query.currency || baseCurrency;
+    const currency = getRequestCurrency(req);
 
     if (req.query.from && req.query.to) {
         dateFrom = moment(req.query.from).startOf('day');
@@ -106,7 +106,7 @@ app.get('/api/expenses/daily', async (req, res) => {
 
 app.get('/api/expenses/byCategory/summary', async (req, res) => {
     let expenses = await getAllExpenses();
-    const currency = req.query.currency || baseCurrency;
+    const currency = getRequestCurrency(req);
 
     if (req.query.include !== undefined) {
         expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
@@ -171,7 +171,7 @@ app.get('/api/expenses/byCategory/summary', async (req, res) => {
 
 app.get('/api/expenses/byCategory/weekday', async (req, res) => {
     let expenses = await getAllExpenses();
-    const currency = req.query.currency || baseCurrency;
+    const currency = getRequestCurrency(req);
 
     if (req.query.include !== undefined) {
         expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
@@ -190,7 +190,7 @@ app.get('/api/expenses/byCategory/weekday', async (req, res) => {
 
 app.get('/api/expenses/byCategory/yearly', async (req, res) => {
     let expenses = await getAllExpenses();
-    const currency = req.query.currency || baseCurrency;
+    const currency = getRequestCurrency(req);
 
     if (req.query.include !== undefined) {
         expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
@@ -214,7 +214,7 @@ app.get('/api/expenses/byCategory/yearly', async (req, res) => {
 app.get('/api/expenses/byCategory', async (req, res) => {
     // needs validations
     let expenses = await getAllExpenses();
-    const currency = req.query.currency || baseCurrency;
+    const currency = getRequestCurrency(req);
 
     if (req.query.include !== undefined) {
         expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
@@ -235,10 +235,38 @@ app.get('/api/expenses/byCategory', async (req, res) => {
     res.json({ response: expensesByCategory })
 })
 
+app.get('/api/expenses/subCategories', async (req, res) => {
+    // needs validations
+    let expenses = await getAllExpenses();
+    const currency = getRequestCurrency(req);
+
+    if (req.query.include !== undefined) {
+        expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
+    }
+
+    if (req.query.category !== undefined) {
+        expenses = expenses.filter(expense => expense.category.id === req.query.category)
+    }
+
+    if (req.query.from && req.query.to) {
+        const from = moment(req.query.from).startOf('day');
+        const to = moment(req.query.to).endOf('day');
+
+        expensesInRange = listWithPreferredCurrency(currency, expenses).filter(e => {
+            const expenseDate = moment(e.date);
+            return expenseDate.isBetween(from, to, 'hours');
+        });
+    }
+
+    const expensesSubCategories = accumulateExpensesBySubCategory(expensesInRange);
+
+    res.json({ response: expensesSubCategories })
+})
+
 
 app.get('/api/expenses', async (req, res) => {
     let expenses = await getAllExpenses();
-    const currency = req.query.currency || baseCurrency;
+    const currency = getRequestCurrency(req);
 
     if (req.query.include !== undefined) {
         expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(''));
@@ -262,7 +290,7 @@ app.get('/api/expenses', async (req, res) => {
 
 app.get('/api/expenses/:id', async (req, res) => {
     const expense = await findExpenseById(req.params.id);
-    const currency = req.query.currency || baseCurrency;
+    const currency = getRequestCurrency(req);
 
     if (expense) {
         res.json({ resposne: withPreferredCurrency(currency, expense) });
@@ -298,8 +326,11 @@ app.post('/api/expenses', async (req, res) => {
         currency,
         originalCurrency: currency,
         category: req.body.category.id,
+        subCategories: req.body.subCategories.map(s => s.id),
         rates: await getCurrencyRates(currency, amount)
     });
+
+    console.log(': Created new expense', newExpense)
 
     res.json({ response: newExpense });
 })
@@ -465,6 +496,21 @@ function accumulateExpensesByCategory(expenses) {
     return expensesByCategory;
 }
 
+function accumulateExpensesBySubCategory(expenses) {
+    const expensesBySubCategory = {};
+    expenses.forEach(exp => {
+        exp.subCategories.forEach(sub => {
+            if (expensesBySubCategory[sub.name]) {
+                expensesBySubCategory[sub.name] += exp.amount;
+            } else {
+                expensesBySubCategory[sub.name] = exp.amount;
+            }
+        })
+    })
+
+    return expensesBySubCategory
+}
+
 function applyCategoryFilter(expenses, include, categoryIds) {
     filteredExpenses = expenses.filter(e => {
         if (include === 'true') {
@@ -484,7 +530,7 @@ function round(num) {
 }
 
 async function getAllExpenses() {
-    return await Expense.find().populate('category').lean();
+    return await Expense.find().populate('category').populate('subCategories').lean();
 }
 
 async function findExpenseById(id) {
@@ -494,4 +540,8 @@ async function findExpenseById(id) {
 async function readJsonFile(fileName) {
     const data = await fs.readFile(fileName, 'utf8');
     return JSON.parse(data);
+}
+
+function getRequestCurrency(request) {
+    return request.query.currency === 'null' || !request.query.currency ? baseCurrency : request.query.currency;
 }
