@@ -245,7 +245,7 @@ app.get('/api/expenses/subCategories', async (req, res) => {
     }
 
     if (req.query.category !== undefined) {
-        expenses = expenses.filter(expense => expense.category.id === req.query.category)
+        expenses = expenses.filter(expense => expense.category.name === req.query.category)
     }
 
     if (req.query.from && req.query.to) {
@@ -520,6 +520,20 @@ function applyCategoryFilter(expenses, include, categoryIds) {
         } else {
             // only filter out the expenses from excluded categories
             return categoryIds.indexOf(e.category._id.toString()) === -1;
+        }
+    });
+
+    return applySubCategoryFilter(filteredExpenses, include, categoryIds) ;
+}
+
+function applySubCategoryFilter(expenses, include, subcateryIds) {
+    filteredExpenses = expenses.filter(e => {
+        if (include === 'true') {
+            // only get the expenses from included categories
+            return subcateryIds.filter(id => e.subCategories.map(sub => sub._id.toString()).includes(id)).length > 0
+        } else {
+            // only filter out the expenses from excluded categories
+            return subcateryIds.filter(id => e.subCategories.map(sub => sub._id.toString()).includes(id)).length === 0
         }
     });
 
