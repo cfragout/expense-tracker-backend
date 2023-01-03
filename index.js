@@ -326,7 +326,7 @@ app.post('/api/expenses', async (req, res) => {
         currency,
         originalCurrency: currency,
         category: req.body.category.id,
-        subCategories: req.body.subCategories.map(s => s.id),
+        subCategories: req.body.subCategories ? req.body.subCategories.map(s => s.id) : [],
         rates: await getCurrencyRates(currency, amount)
     });
 
@@ -354,6 +354,7 @@ app.put('/api/expenses/:id', async (req, res) => {
         expense.currency = updatedExpense.currency;
         expense.updatedAt = Date.now()
         expense.category = updatedExpense.category;
+        expense.subCategories = updatedExpense.subCategories?.length > 0 ? updatedExpense.subCategories.map(s => s.id) : [];
         expense.rates = await getCurrencyRates(updatedExpense.currency, updatedExpense.amount);
         await expense.save();
         res.json({ response: expense });
