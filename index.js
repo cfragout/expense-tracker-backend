@@ -114,13 +114,7 @@ app.get('/api/expenses/byCategory/summary', async (req, res) => {
 
     let expensesInRange = [...expenses];
     if (req.query.from && req.query.to) {
-        const from = moment(req.query.from).startOf('day');
-        const to = moment(req.query.to).endOf('day');
-
-        expensesInRange = expensesInRange.filter(e => {
-            const expenseDate = moment(e.date);
-            return expenseDate.isBetween(from, to, 'hours');
-        });
+        expensesInRange = applyDateRangeFilter(expenses, req.query.from, req.query.to);
     }
 
     // get expenses in preferred currency
@@ -177,7 +171,11 @@ app.get('/api/expenses/byCategory/weekday', async (req, res) => {
         expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
     }
 
-    const categoriesWeekday = []
+    if (req.query.from && req.query.to) {
+        expenses = applyDateRangeFilter(expenses, req.query.from, req.query.to);
+    }
+
+    const categoriesWeekday = [];
     for (let index = 0; index <= 6; index++) {
         const expensesInDay = expenses.filter(e => +moment(e.date).format('d') === index);
         const expensesByCategory = accumulateExpensesByCategory(listWithPreferredCurrency(currency, expensesInDay));
@@ -221,14 +219,10 @@ app.get('/api/expenses/byCategory', async (req, res) => {
     }
 
     if (req.query.from && req.query.to) {
-        const from = moment(req.query.from).startOf('day');
-        const to = moment(req.query.to).endOf('day');
-
-        expensesInRange = listWithPreferredCurrency(currency, expenses).filter(e => {
-            const expenseDate = moment(e.date);
-            return expenseDate.isBetween(from, to, 'hours');
-        });
+        expenses = applyDateRangeFilter(expenses, req.query.from, req.query.to);
     }
+
+    expenses = listWithPreferredCurrency(currency, expenses);
 
     const expensesByCategory = accumulateExpensesByCategory(expensesInRange);
 
@@ -249,16 +243,12 @@ app.get('/api/expenses/subCategories', async (req, res) => {
     }
 
     if (req.query.from && req.query.to) {
-        const from = moment(req.query.from).startOf('day');
-        const to = moment(req.query.to).endOf('day');
-
-        expensesInRange = listWithPreferredCurrency(currency, expenses).filter(e => {
-            const expenseDate = moment(e.date);
-            return expenseDate.isBetween(from, to, 'hours');
-        });
+        expenses = applyDateRangeFilter(expenses, req.query.from, req.query.to)
     }
 
-    const expensesSubCategories = accumulateExpensesBySubCategory(expensesInRange);
+    expenses = listWithPreferredCurrency(currency, expenses)
+
+    const expensesSubCategories = accumulateExpensesBySubCategory(expenses);
 
     res.json({ response: expensesSubCategories })
 })
@@ -273,13 +263,7 @@ app.get('/api/expenses', async (req, res) => {
     }
 
     if (req.query.from && req.query.to) {
-        const from = moment(req.query.from).startOf('day');
-        const to = moment(req.query.to).endOf('day');
-
-        expenses = expenses.filter(e => {
-            const expenseDate = moment(e.date);
-            return expenseDate.isBetween(from, to, 'hours');
-        });
+        expenses = applyDateRangeFilter(expenses, req.query.from, req.query.to);
     }
 
     res.json({
@@ -538,6 +522,22 @@ function applySubCategoryFilter(expenses, include, subcateryIds) {
     });
 
     return filteredExpenses;
+}
+
+function applyDateRangeFilter(expenses, from, to) {
+    let expensesInRange = []
+
+    if (from && to) {
+        const mfrom = moment(from).startOf('day');
+        const mto = moment(to).endOf('day');
+
+        expensesInRange = expenses.filter(e => {
+            const expenseDate = moment(e.date);
+            return expenseDate.isBetween(mfrom, mto, 'hours');
+        });
+    }
+
+    return expensesInRange;
 }
 
 function round(num) {
