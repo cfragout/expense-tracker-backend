@@ -19,7 +19,7 @@ app.use(cors());
 baseCurrency = 'USD';
 currencyShortNames = [];
 exchangeRate = {};
-mock = true;
+mock = false;
 
 const exchangeRateAPI = 'https://api.apilayer.com/exchangerates_data';
 
@@ -224,7 +224,7 @@ app.get('/api/expenses/byCategory', async (req, res) => {
 
     expenses = listWithPreferredCurrency(currency, expenses);
 
-    const expensesByCategory = accumulateExpensesByCategory(expensesInRange);
+    const expensesByCategory = accumulateExpensesByCategory(expenses);
 
     res.json({ response: expensesByCategory })
 })
