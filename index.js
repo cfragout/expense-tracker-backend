@@ -285,11 +285,16 @@ app.get('/api/expenses/:id', async (req, res) => {
 
 
 app.post('/api/expenses', async (req, res) => {
-    const { amount, currency, category } = req.body;
+    const { amount, currency, category, date } = req.body;
 
     // simple validations
     if (!amount) {
         res.status(403).send('Amount is required');
+        return;
+    }
+
+    if (!date) {
+        res.status(403).send('Date is required');
         return;
     }
 
@@ -308,6 +313,7 @@ app.post('/api/expenses', async (req, res) => {
         amount: req.body.amount,
         originalAmount: req.body.amount,
         currency,
+        description: req.body.description,
         originalCurrency: currency,
         category: req.body.category.id,
         subCategories: req.body.subCategories ? req.body.subCategories.map(s => s.id) : [],
