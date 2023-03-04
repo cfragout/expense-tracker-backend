@@ -316,6 +316,7 @@ app.post('/api/expenses', async (req, res) => {
         description: req.body.description,
         originalCurrency: currency,
         category: req.body.category.id,
+        user: req.body.user,
         subCategories: req.body.subCategories ? req.body.subCategories.map(s => s.id) : [],
         rates: await getCurrencyRates(currency, amount)
     });
@@ -340,6 +341,7 @@ app.put('/api/expenses/:id', async (req, res) => {
     if (expense) {
         expense.amount = updatedExpense.amount;
         expense.date = updatedExpense.date;
+        expense.user = updatedExpense.user;
         expense.description = updatedExpense.description;
         expense.currency = updatedExpense.currency;
         expense.updatedAt = Date.now()
