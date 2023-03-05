@@ -36,12 +36,8 @@ app.get('/api/expenses/yearly', async (req, res) => {
     // needs validations
     const date = moment(req.query.date);
     const currency = getRequestCurrency(req);
-
     
     let expenses = await getExpensesAllByUser(req.query.user);
-    
-    console.log('\n\n\n\n\nexpenses by user', req.query.user, expenses, '\n\n\n\n\n')
-
     
     if (req.query.include !== undefined) {
         expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
@@ -514,33 +510,20 @@ function applyCategoryFilter(expenses, include, categoryIds) {
     const filteredExpenses = expenses.filter(e => {
         if (include === 'true') {
             // only get the expenses from included categories
-            return categoryIds.indexOf(e.category._id.toString()) > -1;
+            const includedAsCategory = categoryIds.indexOf(e.category._id.toString()) > -1;
+            const includedAsSubcategory = categoryIds.filter(id => e.subCategories.map(sub => sub._id.toString()).includes(id)).length > 0;
+            return includedAsCategory || includedAsSubcategory;
         } else {
             // only filter out the expenses from excluded categories
-            return categoryIds.indexOf(e.category._id.toString()) === -1;
+            const includedAsCategory = categoryIds.indexOf(e.category._id.toString()) === -1;
+            const includedAsSubcategory = categoryIds.filter(id => e.subCategories.map(sub => sub._id.toString()).includes(id)).length === 0;
+            return includedAsCategory && includedAsSubcategory;
         }
     });
 
-    return applySubCategoryFilter(filteredExpenses, include, categoryIds) ;
+    return filteredExpenses
 }
 
-function applySubCategoryFilter(expenses, include, subcateryIds) {
-    const filteredExpenses = expenses.filter(e => {
-        if (include === 'true') {
-            // only get the expenses from included categories
-            return subcateryIds.filter(id => e.subCategories.map(sub => sub._id.toString()).includes(id)).length > 0
-        } else {
-            // only filter out the expenses from excluded categories
-            return subcateryIds.filter(id => e.subCategories.map(sub => sub._id.toString()).includes(id)).length === 0
-        }
-    });
-
-    return filteredExpenses;
-}
-
-function applyUserFilter(expenses, user) {
-    return expenses.filter(e => user.toLowerCase() === e.user.toLowerCase());
-}
 
 function applyDateRangeFilter(expenses, from, to) {
     let expensesInRange = []
