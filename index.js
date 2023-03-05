@@ -36,7 +36,13 @@ app.get('/api/expenses/yearly', async (req, res) => {
     // needs validations
     const date = moment(req.query.date);
     const currency = getRequestCurrency(req);
-    let expenses = await getAllExpenses();
+
+    
+    let expenses = await getExpensesAllByUser(req.query.user);
+    
+    console.log('\n\n\n\n\nexpenses by user', req.query.user, expenses, '\n\n\n\n\n')
+
+    
     if (req.query.include !== undefined) {
         expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
     }
@@ -72,7 +78,7 @@ app.get('/api/expenses/daily', async (req, res) => {
     }
 
     const lastDateIndex = dateTo.diff(dateFrom, 'days') + 1;
-    const expenses = await getAllExpenses();
+    let expenses = await getExpensesAllByUser(req.query.user);
 
     expensesInRange = expenses.filter(e => {
         const expenseDate = moment(e.date);
@@ -105,7 +111,7 @@ app.get('/api/expenses/daily', async (req, res) => {
 
 
 app.get('/api/expenses/byCategory/summary', async (req, res) => {
-    let expenses = await getAllExpenses();
+    let expenses = await getExpensesAllByUser(req.query.user);
     const currency = getRequestCurrency(req);
 
     if (req.query.include !== undefined) {
@@ -164,7 +170,7 @@ app.get('/api/expenses/byCategory/summary', async (req, res) => {
 
 
 app.get('/api/expenses/byCategory/weekday', async (req, res) => {
-    let expenses = await getAllExpenses();
+    let expenses = await getExpensesAllByUser(req.query.user);
     const currency = getRequestCurrency(req);
 
     if (req.query.include !== undefined) {
@@ -187,7 +193,7 @@ app.get('/api/expenses/byCategory/weekday', async (req, res) => {
 })
 
 app.get('/api/expenses/byCategory/yearly', async (req, res) => {
-    let expenses = await getAllExpenses();
+    let expenses = await getExpensesAllByUser(req.query.user);
     const currency = getRequestCurrency(req);
 
     if (req.query.include !== undefined) {
@@ -211,7 +217,7 @@ app.get('/api/expenses/byCategory/yearly', async (req, res) => {
 
 app.get('/api/expenses/byCategory', async (req, res) => {
     // needs validations
-    let expenses = await getAllExpenses();
+    let expenses = await getExpensesAllByUser(req.query.user);
     const currency = getRequestCurrency(req);
 
     if (req.query.include !== undefined) {
@@ -231,7 +237,7 @@ app.get('/api/expenses/byCategory', async (req, res) => {
 
 app.get('/api/expenses/subCategories', async (req, res) => {
     // needs validations
-    let expenses = await getAllExpenses();
+    let expenses = await getExpensesAllByUser(req.query.user);
     const currency = getRequestCurrency(req);
 
     if (req.query.include !== undefined) {
@@ -255,7 +261,7 @@ app.get('/api/expenses/subCategories', async (req, res) => {
 
 
 app.get('/api/expenses', async (req, res) => {
-    let expenses = await getAllExpenses();
+    let expenses = await getExpensesAllByUser(req.query.user);
     const currency = getRequestCurrency(req);
 
     if (req.query.include !== undefined) {
@@ -316,7 +322,7 @@ app.post('/api/expenses', async (req, res) => {
         description: req.body.description,
         originalCurrency: currency,
         category: req.body.category.id,
-        user: req.body.user,
+        user: req.body.user.toLowerCase(),
         subCategories: req.body.subCategories ? req.body.subCategories.map(s => s.id) : [],
         rates: await getCurrencyRates(currency, amount)
     });
@@ -341,7 +347,7 @@ app.put('/api/expenses/:id', async (req, res) => {
     if (expense) {
         expense.amount = updatedExpense.amount;
         expense.date = updatedExpense.date;
-        expense.user = updatedExpense.user;
+        expense.user = updatedExpense.user.toLowerCase();
         expense.description = updatedExpense.description;
         expense.currency = updatedExpense.currency;
         expense.updatedAt = Date.now()
@@ -505,7 +511,7 @@ function accumulateExpensesBySubCategory(expenses) {
 }
 
 function applyCategoryFilter(expenses, include, categoryIds) {
-    filteredExpenses = expenses.filter(e => {
+    const filteredExpenses = expenses.filter(e => {
         if (include === 'true') {
             // only get the expenses from included categories
             return categoryIds.indexOf(e.category._id.toString()) > -1;
@@ -519,7 +525,7 @@ function applyCategoryFilter(expenses, include, categoryIds) {
 }
 
 function applySubCategoryFilter(expenses, include, subcateryIds) {
-    filteredExpenses = expenses.filter(e => {
+    const filteredExpenses = expenses.filter(e => {
         if (include === 'true') {
             // only get the expenses from included categories
             return subcateryIds.filter(id => e.subCategories.map(sub => sub._id.toString()).includes(id)).length > 0
@@ -530,6 +536,10 @@ function applySubCategoryFilter(expenses, include, subcateryIds) {
     });
 
     return filteredExpenses;
+}
+
+function applyUserFilter(expenses, user) {
+    return expenses.filter(e => user.toLowerCase() === e.user.toLowerCase());
 }
 
 function applyDateRangeFilter(expenses, from, to) {
@@ -552,8 +562,14 @@ function round(num) {
     return Math.round((num + Number.EPSILON) * 100) / 100;
 }
 
+// TODO: expenses should be queried in the DB, not in memory
 async function getAllExpenses() {
     return await Expense.find().populate('category').populate('subCategories').lean();
+}
+
+async function getExpensesAllByUser(user) {
+    const filter = user ? { user } : {};
+    return await Expense.find(filter).populate('category').populate('subCategories').lean();
 }
 
 async function findExpenseById(id) {
