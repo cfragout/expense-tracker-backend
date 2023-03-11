@@ -554,9 +554,6 @@ async function getAllExpenses() {
 
 async function getExpensesAllByUser(user) {
     const filter = user && user !== '-1' ? { user } : {};
-    console.log('----------> user', user, filter)
-
-
     return await Expense.find(filter).populate('category').populate('subCategories').lean();
 }
 
