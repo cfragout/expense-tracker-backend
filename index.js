@@ -159,7 +159,9 @@ app.get('/api/expenses/byCategory/summary', async (req, res) => {
         });
 
         accumulatedSortedExpensesByCategory[key] = Object.values(accumulated);
-    })
+    });
+
+    
 
     res.json({ response: { summary: expensesSummary, byCategory: accumulatedSortedExpensesByCategory } })
 })
@@ -261,7 +263,7 @@ app.get('/api/expenses', async (req, res) => {
     const currency = getRequestCurrency(req);
 
     if (req.query.include !== undefined) {
-        expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(''));
+        expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
     }
 
     if (req.query.from && req.query.to) {
@@ -503,7 +505,7 @@ function accumulateExpensesBySubCategory(expenses) {
         })
     })
 
-    return expensesBySubCategory
+    return expensesBySubCategory;
 }
 
 function applyCategoryFilter(expenses, include, categoryIds) {
@@ -551,7 +553,10 @@ async function getAllExpenses() {
 }
 
 async function getExpensesAllByUser(user) {
-    const filter = user ? { user } : {};
+    const filter = user && user !== '-1' ? { user } : {};
+    console.log('----------> user', user, filter)
+
+
     return await Expense.find(filter).populate('category').populate('subCategories').lean();
 }
 
