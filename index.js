@@ -36,9 +36,9 @@ app.get('/api/expenses/yearly', async (req, res) => {
     // needs validations
     const date = moment(req.query.date);
     const currency = getRequestCurrency(req);
-    
+
     let expenses = await getExpensesAllByUser(req.query.user);
-    
+
     if (req.query.include !== undefined) {
         expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
     }
@@ -105,7 +105,6 @@ app.get('/api/expenses/daily', async (req, res) => {
     res.json({ response: monthlyExpenses });
 })
 
-
 app.get('/api/expenses/byCategory/summary', async (req, res) => {
     let expenses = await getExpensesAllByUser(req.query.user);
     const currency = getRequestCurrency(req);
@@ -161,11 +160,10 @@ app.get('/api/expenses/byCategory/summary', async (req, res) => {
         accumulatedSortedExpensesByCategory[key] = Object.values(accumulated);
     });
 
-    
+
 
     res.json({ response: { summary: expensesSummary, byCategory: accumulatedSortedExpensesByCategory } })
 })
-
 
 app.get('/api/expenses/byCategory/weekday', async (req, res) => {
     let expenses = await getExpensesAllByUser(req.query.user);
@@ -212,7 +210,6 @@ app.get('/api/expenses/byCategory/yearly', async (req, res) => {
     res.json({ response: categoriesYearly })
 })
 
-
 app.get('/api/expenses/byCategory', async (req, res) => {
     // needs validations
     let expenses = await getExpensesAllByUser(req.query.user);
@@ -257,6 +254,27 @@ app.get('/api/expenses/subCategories', async (req, res) => {
     res.json({ response: expensesSubCategories })
 })
 
+app.get('/api/expenses/combined', async (req, res) => {
+    // needs validations
+    let expenses = await getExpensesAllByUser(req.query.user);
+    const currency = getRequestCurrency(req);
+
+    if (req.query.include !== undefined) {
+        expenses = applyCategoryFilter(expenses, req.query.include, req.query.categories.split(','));
+    }
+
+    if (req.query.category !== undefined) {
+        expenses = [...expenses.filter(expense => expense.category.name === req.query.category), ...expenses.filter(expense => !!expense.subCategories.find(e => e.name === req.query.category))];
+    }
+
+    if (req.query.from && req.query.to) {
+        expenses = applyDateRangeFilter(expenses, req.query.from, req.query.to)
+    }
+
+    expenses = listWithPreferredCurrency(currency, expenses);
+
+    res.json({ response: expenses })
+})
 
 app.get('/api/expenses', async (req, res) => {
     let expenses = await getExpensesAllByUser(req.query.user);
@@ -275,7 +293,6 @@ app.get('/api/expenses', async (req, res) => {
     })
 })
 
-
 app.get('/api/expenses/:id', async (req, res) => {
     const expense = await findExpenseById(req.params.id);
     const currency = getRequestCurrency(req);
@@ -286,7 +303,6 @@ app.get('/api/expenses/:id', async (req, res) => {
         res.status(404).end();
     }
 })
-
 
 app.post('/api/expenses', async (req, res) => {
     const { amount, currency, category, date } = req.body;
@@ -330,13 +346,11 @@ app.post('/api/expenses', async (req, res) => {
     res.json({ response: newExpense });
 })
 
-
 app.delete('/api/expenses/:id', async (req, res) => {
     const id = req.params.id;
     await Expense.deleteOne({ _id: id });
     res.json({ reponse: undefined });
 })
-
 
 app.put('/api/expenses/:id', async (req, res) => {
     const id = req.params.id;
@@ -376,6 +390,20 @@ app.post('/api/categories', async (req, res) => {
     res.json({ response: newCategory })
 })
 
+app.put('/api/categories/:id', async (req, res) => {
+    const id = req.params.id;
+    const updatedCategory = req.body;
+    let category = await Category.findById(id) //.populate('category');
+    if (category) {
+        category.name = updatedCategory.name;
+        category.color = updatedCategory.color;
+        await category.save();
+        res.json({ response: category });
+    } else {
+        res.statusCode(404);
+    }
+})
+
 
 // Currencies
 app.get('/api/currencies', async (req, res) => {
@@ -385,6 +413,7 @@ app.get('/api/currencies', async (req, res) => {
 })
 
 
+// Main
 app.listen(PORT, async () => {
     currencies = await readJsonFile('./currencies.json');
     currencyShortNames = currencies.map(c => c.shortName);
